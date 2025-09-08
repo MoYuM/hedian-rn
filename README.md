@@ -1,50 +1,117 @@
-# Welcome to your Expo app 👋
+# Hedian RN - React Native 应用
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+这是一个使用 Expo Router 和 React Native 构建的移动应用。
 
-## Get started
+## 功能特性
 
-1. Install dependencies
+- 🔐 完整的登录系统
+- 📱 响应式设计，支持深色/浅色主题
+- 🎨 现代化的UI设计
+- 📱 支持iOS和Android平台
 
-   ```bash
-   npm install
-   ```
+## 登录系统
 
-2. Start the app
+应用包含以下页面：
 
-   ```bash
-   npx expo start
-   ```
+- **登录页面** (`/login`) - 用户登录界面
+- **注册页面** (`/register`) - 新用户注册界面
+- **主页** (`/(tabs)`) - 登录成功后的主界面
 
-In the output, you'll find options to open the app in a
+### 登录功能
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- 用户名和密码验证
+- 表单验证和错误提示
+- 登录状态管理
+- 自动跳转到主页
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 注册功能
 
-## Get a fresh project
+- 用户名、邮箱、密码输入
+- 密码确认验证
+- 表单验证
+- 注册成功后返回登录页面
 
-When you're ready, run:
+## 开始使用
+
+### 安装依赖
 
 ```bash
-npm run reset-project
+pnpm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 启动开发服务器
 
-## Learn more
+```bash
+pnpm start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 运行在设备上
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+# iOS
+pnpm ios
 
-## Join the community
+# Android
+pnpm android
+```
 
-Join our community of developers creating universal apps.
+## 项目结构
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+app/
+├── _layout.tsx          # 根布局配置
+├── index.tsx            # 启动页面（自动跳转到登录）
+├── login.tsx            # 登录页面
+├── register.tsx         # 注册页面
+└── (tabs)/              # 主页标签导航
+    ├── _layout.tsx      # 标签页布局
+    ├── index.tsx        # 首页
+    └── explore.tsx      # 探索页面
+
+components/               # 可复用组件
+├── ThemedView.tsx       # 主题化视图组件
+├── ThemedText.tsx       # 主题化文本组件
+└── ui/                  # UI组件
+
+constants/                # 常量定义
+├── Colors.ts            # 颜色主题配置
+
+hooks/                    # 自定义钩子
+├── useColorScheme.ts    # 颜色主题钩子
+└── useThemeColor.ts     # 主题颜色钩子
+```
+
+## 技术栈
+
+- **React Native** - 移动应用框架
+- **Expo Router** - 文件系统路由
+- **TypeScript** - 类型安全
+- **React Native Reanimated** - 动画库
+
+## 主题系统
+
+应用支持深色和浅色主题，自动根据系统设置切换：
+
+- 自动主题切换
+- 一致的颜色方案
+- 响应式设计
+
+## 开发说明
+
+### 添加新页面
+
+1. 在 `app/` 目录下创建新的 `.tsx` 文件
+2. 在 `app/_layout.tsx` 中添加路由配置
+3. 使用 `router.push()` 或 `router.replace()` 进行页面跳转
+
+### 自定义主题
+
+在 `constants/Colors.ts` 中修改颜色配置，应用会自动应用新的主题。
+
+### 组件开发
+
+使用 `ThemedView` 和 `ThemedText` 组件来确保新组件支持主题系统。
+
+## 许可证
+
+MIT License

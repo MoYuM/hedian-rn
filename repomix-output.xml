@@ -1,0 +1,3229 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+.cursor/
+  rules/
+    base.mdc
+    complete.mdc
+api/
+  cocktails/
+    v1/
+      index.ts
+  cos/
+    v1/
+      index.ts
+  ingredients/
+    v1/
+      index.tsx
+  user-cocktails/
+    v1/
+      index.ts
+  user-ingredients/
+    v1/
+      index.ts
+  users/
+    v1/
+      index.ts
+app/
+  components/
+    cocktail-card/
+      detail-modal.tsx
+      index.tsx
+    cocktail-edit-modal/
+      index.tsx
+    header/
+      index.tsx
+    login/
+      index.tsx
+    register/
+      index.tsx
+    user-info/
+      index.tsx
+  home/
+    cocktail-card.tsx
+    loading.tsx
+    page.tsx
+  mine/
+    components/
+      ingredient-modal.tsx
+      upload.tsx
+    loading.tsx
+    page.tsx
+  globals.css
+  layout.tsx
+  page.tsx
+  provider.tsx
+components/
+  ui/
+    button.tsx
+    dialog.tsx
+    dropdown-menu.tsx
+    form.tsx
+    input.tsx
+    label.tsx
+    skeleton.tsx
+    sonner.tsx
+lib/
+  utils.ts
+public/
+  file.svg
+  globe.svg
+  next.svg
+  vercel.svg
+  window.svg
+types/
+  cocktails.ts
+  ingredient.ts
+utils/
+  request.ts
+.editorconfig
+.gitignore
+.nvmrc
+components.json
+eslint.config.mjs
+next.config.ts
+package.json
+postcss.config.mjs
+README.md
+tsconfig.json
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".cursor/rules/base.mdc">
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 项目基本信息
+
+## 技术栈
+
+- Node: >=20
+- packageManager: pnpm@9.x
+- UI 库: [antd5.x](mdc:https:/ant.design/components/overview-cn)
+- 框架: [Next@15](mdc:https:/nextjs.org/docs)
+- 样式: [tailwindcss@4.x](mdc:https:/tailwindcss.com/docs/installation/using-vite)
+- 接口请求: [react-query](mdc:https:/tanstack.com/query/latest/docs/framework/react/overview)
+- 校验: [zod@3.x](mdc:https:/zod.dev)
+
+## 接口请求最佳实践
+
+1. 先在 `@api/` 文件夹下创建接口函数，定义请求地址、请求结构、返回结构
+2. 在对应页面中使用 `react-query` 管理请求状态
+
+## 弹窗最佳实践
+
+- 弹窗使用 [NiceModal](mdc:https:/github.com/eBay/nice-modal-react) 这个库，遵循其最佳实践
+- UI 部分使用 `antd` 的组件
+
+## 表单最佳实践
+
+- 使用 antd from 构建表单
+- 在提交之前使用 `zod` 校验表单数据再做提交
+
+## 其他要求
+
+## 启动项目
+
+```base
+npm run dev
+```
+</file>
+
+<file path=".cursor/rules/complete.mdc">
+---
+description: 
+globs: 
+alwaysApply: false
+---
+你是一个经验丰富的工程师，请根据以下技术方案，逐步实现对应的代码。遵循以下规则：
+
+1. 在开始写代码之前，先分析实现思路，拆分功能模块。
+2. 明确输入输出，列出主要函数、数据结构。
+3. 每个模块用清晰注释分隔，逐步实现。
+4. 遇到不确定的细节，合理假设并标注 TODO。
+5. 确保代码可读、易于维护，并尽可能覆盖边界情况。
+6. 按模块完成代码，每个模块完成之后进行简单验证之后再进行下一个模块。
+
+技术方案如下：
+</file>
+
+<file path="app/mine/components/ingredient-modal.tsx">
+import { searchIngredient } from '@/api/ingredients/v1'
+import { addUserIngredient } from '@/api/user-ingredients/v1'
+import NiceModal from '@ebay/nice-modal-react'
+import { useMutation } from '@tanstack/react-query'
+import { Form, Modal, Select } from 'antd'
+import { toast } from 'sonner'
+
+export interface IngredientModalProps {
+  onSuccess: () => void
+}
+
+const IngredientModal = NiceModal.create<IngredientModalProps>(({ onSuccess }) => {
+  const modal = NiceModal.useModal()
+  const [form] = Form.useForm()
+
+  const { mutate: addIngredientMutate } = useMutation({
+    mutationFn: addUserIngredient,
+    onSuccess: () => {
+      toast.success('添加成功')
+      handleClose()
+      onSuccess()
+    },
+    onError: () => {
+      toast.error('添加失败')
+    },
+  })
+
+  const {
+    mutate: searchIngredientMutate,
+    data: searchIngredientData,
+  } = useMutation({
+    mutationFn: searchIngredient,
+  })
+
+  const options = searchIngredientData?.list?.map(i => ({
+    value: String(i.id),
+    label: `${i.name} ${i.en_name}`,
+  }))
+
+  const handleFinish = (values: any) => {
+    addIngredientMutate({ ingredient_id: values.name })
+    handleClose()
+  }
+
+  const handleClose = () => {
+    modal.hide()
+  }
+
+  return (
+    <Modal
+      open={modal.visible}
+      onCancel={handleClose}
+      onOk={form.submit}
+      okText="添加"
+      cancelText="取消"
+      title="添加材料"
+    >
+      <Form form={form} onFinish={handleFinish}>
+        <Form.Item name="name">
+          <Select
+            showSearch
+            autoFocus
+            filterOption={false}
+            placeholder="搜索你目前拥有的材料"
+            onSearch={val => searchIngredientMutate({ keyword: val })}
+            options={options}
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
+})
+
+export default IngredientModal
+</file>
+
+<file path="public/file.svg">
+<svg fill="none" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M14.5 13.5V5.41a1 1 0 0 0-.3-.7L9.8.29A1 1 0 0 0 9.08 0H1.5v13.5A2.5 2.5 0 0 0 4 16h8a2.5 2.5 0 0 0 2.5-2.5m-1.5 0v-7H8v-5H3v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1M9.5 5V2.12L12.38 5zM5.13 5h-.62v1.25h2.12V5zm-.62 3h7.12v1.25H4.5zm.62 3h-.62v1.25h7.12V11z" clip-rule="evenodd" fill="#666" fill-rule="evenodd"/></svg>
+</file>
+
+<file path="public/globe.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><g clip-path="url(#a)"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.27 14.1a6.5 6.5 0 0 0 3.67-3.45q-1.24.21-2.7.34-.31 1.83-.97 3.1M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.48-1.52a7 7 0 0 1-.96 0H7.5a4 4 0 0 1-.84-1.32q-.38-.89-.63-2.08a40 40 0 0 0 3.92 0q-.25 1.2-.63 2.08a4 4 0 0 1-.84 1.31zm2.94-4.76q1.66-.15 2.95-.43a7 7 0 0 0 0-2.58q-1.3-.27-2.95-.43a18 18 0 0 1 0 3.44m-1.27-3.54a17 17 0 0 1 0 3.64 39 39 0 0 1-4.3 0 17 17 0 0 1 0-3.64 39 39 0 0 1 4.3 0m1.1-1.17q1.45.13 2.69.34a6.5 6.5 0 0 0-3.67-3.44q.65 1.26.98 3.1M8.48 1.5l.01.02q.41.37.84 1.31.38.89.63 2.08a40 40 0 0 0-3.92 0q.25-1.2.63-2.08a4 4 0 0 1 .85-1.32 7 7 0 0 1 .96 0m-2.75.4a6.5 6.5 0 0 0-3.67 3.44 29 29 0 0 1 2.7-.34q.31-1.83.97-3.1M4.58 6.28q-1.66.16-2.95.43a7 7 0 0 0 0 2.58q1.3.27 2.95.43a18 18 0 0 1 0-3.44m.17 4.71q-1.45-.12-2.69-.34a6.5 6.5 0 0 0 3.67 3.44q-.65-1.27-.98-3.1" fill="#666"/></g><defs><clipPath id="a"><path fill="#fff" d="M0 0h16v16H0z"/></clipPath></defs></svg>
+</file>
+
+<file path="public/next.svg">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 394 80"><path fill="#000" d="M262 0h68.5v12.7h-27.2v66.6h-13.6V12.7H262V0ZM149 0v12.7H94v20.4h44.3v12.6H94v21h55v12.6H80.5V0h68.7zm34.3 0h-17.8l63.8 79.4h17.9l-32-39.7 32-39.6h-17.9l-23 28.6-23-28.6zm18.3 56.7-9-11-27.1 33.7h17.8l18.3-22.7z"/><path fill="#000" d="M81 79.3 17 0H0v79.3h13.6V17l50.2 62.3H81Zm252.6-.4c-1 0-1.8-.4-2.5-1s-1.1-1.6-1.1-2.6.3-1.8 1-2.5 1.6-1 2.6-1 1.8.3 2.5 1a3.4 3.4 0 0 1 .6 4.3 3.7 3.7 0 0 1-3 1.8zm23.2-33.5h6v23.3c0 2.1-.4 4-1.3 5.5a9.1 9.1 0 0 1-3.8 3.5c-1.6.8-3.5 1.3-5.7 1.3-2 0-3.7-.4-5.3-1s-2.8-1.8-3.7-3.2c-.9-1.3-1.4-3-1.4-5h6c.1.8.3 1.6.7 2.2s1 1.2 1.6 1.5c.7.4 1.5.5 2.4.5 1 0 1.8-.2 2.4-.6a4 4 0 0 0 1.6-1.8c.3-.8.5-1.8.5-3V45.5zm30.9 9.1a4.4 4.4 0 0 0-2-3.3 7.5 7.5 0 0 0-4.3-1.1c-1.3 0-2.4.2-3.3.5-.9.4-1.6 1-2 1.6a3.5 3.5 0 0 0-.3 4c.3.5.7.9 1.3 1.2l1.8 1 2 .5 3.2.8c1.3.3 2.5.7 3.7 1.2a13 13 0 0 1 3.2 1.8 8.1 8.1 0 0 1 3 6.5c0 2-.5 3.7-1.5 5.1a10 10 0 0 1-4.4 3.5c-1.8.8-4.1 1.2-6.8 1.2-2.6 0-4.9-.4-6.8-1.2-2-.8-3.4-2-4.5-3.5a10 10 0 0 1-1.7-5.6h6a5 5 0 0 0 3.5 4.6c1 .4 2.2.6 3.4.6 1.3 0 2.5-.2 3.5-.6 1-.4 1.8-1 2.4-1.7a4 4 0 0 0 .8-2.4c0-.9-.2-1.6-.7-2.2a11 11 0 0 0-2.1-1.4l-3.2-1-3.8-1c-2.8-.7-5-1.7-6.6-3.2a7.2 7.2 0 0 1-2.4-5.7 8 8 0 0 1 1.7-5 10 10 0 0 1 4.3-3.5c2-.8 4-1.2 6.4-1.2 2.3 0 4.4.4 6.2 1.2 1.8.8 3.2 2 4.3 3.4 1 1.4 1.5 3 1.5 5h-5.8z"/></svg>
+</file>
+
+<file path="public/vercel.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1155 1000"><path d="m577.3 0 577.4 1000H0z" fill="#fff"/></svg>
+</file>
+
+<file path="public/window.svg">
+<svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M1.5 2.5h13v10a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1zM0 1h16v11.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 0 12.5zm3.75 4.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5M7 4.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0m1.75.75a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5" fill="#666"/></svg>
+</file>
+
+<file path=".editorconfig">
+root=true
+
+[*]
+indent_style = space
+indent_size = 2
+</file>
+
+<file path=".gitignore">
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+</file>
+
+<file path=".nvmrc">
+v22.14.0
+</file>
+
+<file path="README.md">
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+</file>
+
+<file path="api/cos/v1/index.ts">
+import createPost from '@/utils/request'
+
+/**
+ * COS 临时凭证
+ */
+export const getCosTempCredential = createPost<object, {
+  data: {
+    Credentials: {
+      TmpSecretId: string
+      TmpSecretKey: string
+      Token: string
+    }
+    ExpiredTime: number
+    Expiration: string
+    StartTime: number
+    RequestId: string
+  }
+}>(
+  '/v1/cos/getCredentials ',
+)
+</file>
+
+<file path="api/ingredients/v1/index.tsx">
+import type { Ingredient } from '@/types/ingredient'
+import createPost from '@/utils/request'
+
+/**
+ * 搜索材料
+ */
+export const searchIngredient = createPost<{
+  keyword?: string
+}, {
+    list: Ingredient[]
+    total: number
+  }>(
+  '/v1/ingredients/search',
+)
+</file>
+
+<file path="api/user-ingredients/v1/index.ts">
+import type { Ingredient } from '@/types/ingredient'
+import createPost from '@/utils/request'
+
+/**
+ * 获取用户库存材料
+ */
+export const getUserIngredientsList = createPost<{
+  page: number
+  size: number
+}, {
+    list: Ingredient[]
+    total: number
+  }>(
+  '/v1/userIngredients/getIngredientsList',
+)
+
+/**
+ * 添加用户库存材料
+ */
+export const addUserIngredient = createPost<{
+  ingredient_id: number
+}, object>(
+  '/v1/userIngredients/addIngredient',
+)
+
+/**
+ * 删除用户库存材料
+ */
+export const removeIngredient = createPost<{
+  ingredient_id: number
+}, object>(
+  '/v1/userIngredients/removeIngredient',
+)
+</file>
+
+<file path="api/users/v1/index.ts">
+import createPost from '@/utils/request'
+
+export const usersLogin = createPost<{ username: string, password: string }, { token: string }>(
+  '/v1/users/login',
+)
+
+export const usersRegister = createPost<{ username: string, password: string }, object>(
+  '/v1/users/register',
+)
+
+export const usersLogout = createPost<object, object>(
+  '/v1/users/logout',
+)
+
+export const usersInfo = createPost<object, { username: string }>(
+  '/v1/users/info',
+)
+</file>
+
+<file path="app/components/user-info/index.tsx">
+'use client'
+
+import { usersLogout } from '@/api/users/v1'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+
+interface UserInfoProps {
+  username: string
+}
+
+function UserInfo({ username }: UserInfoProps) {
+  const queryClient = useQueryClient()
+
+  const { mutate: logout } = useMutation({
+    mutationFn: () => usersLogout(),
+    onSuccess: () => {
+      toast.success('退出成功')
+      queryClient.setQueryData(['userInfo'], null)
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost">{username}</Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => logout()}>退出登录</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+
+export default UserInfo
+</file>
+
+<file path="app/home/loading.tsx">
+export default () => {
+  return (
+    <div>Loading...</div>
+  )
+}
+</file>
+
+<file path="app/mine/loading.tsx">
+export default function Loading() {
+  return <div>Loading...</div>
+}
+</file>
+
+<file path="app/globals.css">
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+</file>
+
+<file path="components/ui/button.tsx">
+import type { VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { Slot } from '@radix-ui/react-slot'
+import { cva } from 'class-variance-authority'
+
+import * as React from 'react'
+
+const buttonVariants = cva(
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*=\'size-\'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
+  {
+    variants: {
+      variant: {
+        default:
+          'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90',
+        destructive:
+          'bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60',
+        outline:
+          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50',
+        secondary:
+          'bg-secondary text-secondary-foreground shadow-xs hover:bg-secondary/80',
+        ghost:
+          'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+        link: 'text-primary underline-offset-4 hover:underline',
+      },
+      size: {
+        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+        sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
+        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
+        icon: 'size-9',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  },
+)
+
+function Button({
+  className,
+  variant,
+  size,
+  asChild = false,
+  ...props
+}: React.ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }) {
+  const Comp = asChild ? Slot : 'button'
+
+  return (
+    <Comp
+      data-slot="button"
+      className={cn(
+        buttonVariants({ variant, size, className }),
+        'cursor-pointer',
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Button, buttonVariants }
+</file>
+
+<file path="components/ui/dialog.tsx">
+'use client'
+
+import { cn } from '@/lib/utils'
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { XIcon } from 'lucide-react'
+
+import * as React from 'react'
+
+function Dialog({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Root>) {
+  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+}
+
+function DialogTrigger({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+}
+
+function DialogPortal({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Portal>) {
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+}
+
+function DialogClose({
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Close>) {
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
+}
+
+function DialogOverlay({
+  className,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
+  return (
+    <DialogPrimitive.Overlay
+      data-slot="dialog-overlay"
+      className={cn(
+        'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+function DialogContent({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+  return (
+    <DialogPortal data-slot="dialog-portal">
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        data-slot="dialog-content"
+        className={cn(
+          'bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+        <DialogPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4">
+          <XIcon />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  )
+}
+
+function DialogHeader({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot="dialog-header"
+      className={cn('flex flex-col gap-2 text-center sm:text-left', className)}
+      {...props}
+    />
+  )
+}
+
+function DialogFooter({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot="dialog-footer"
+      className={cn(
+        'flex flex-col-reverse gap-2 sm:flex-row sm:justify-end',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+function DialogTitle({
+  className,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Title>) {
+  return (
+    <DialogPrimitive.Title
+      data-slot="dialog-title"
+      className={cn('text-lg leading-none font-semibold', className)}
+      {...props}
+    />
+  )
+}
+
+function DialogDescription({
+  className,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Description>) {
+  return (
+    <DialogPrimitive.Description
+      data-slot="dialog-description"
+      className={cn('text-muted-foreground text-sm', className)}
+      {...props}
+    />
+  )
+}
+
+export {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogOverlay,
+  DialogPortal,
+  DialogTitle,
+  DialogTrigger,
+}
+</file>
+
+<file path="components/ui/dropdown-menu.tsx">
+'use client'
+
+import { cn } from '@/lib/utils'
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
+import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react'
+
+import * as React from 'react'
+
+function DropdownMenu({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
+  return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+}
+
+function DropdownMenuPortal({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>) {
+  return (
+    <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
+  )
+}
+
+function DropdownMenuTrigger({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Trigger>) {
+  return (
+    <DropdownMenuPrimitive.Trigger
+      data-slot="dropdown-menu-trigger"
+      {...props}
+    />
+  )
+}
+
+function DropdownMenuContent({
+  className,
+  sideOffset = 4,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  return (
+    <DropdownMenuPrimitive.Portal>
+      <DropdownMenuPrimitive.Content
+        data-slot="dropdown-menu-content"
+        sideOffset={sideOffset}
+        className={cn(
+          'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--radix-dropdown-menu-content-available-height) min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md',
+          className,
+        )}
+        {...props}
+      />
+    </DropdownMenuPrimitive.Portal>
+  )
+}
+
+function DropdownMenuGroup({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Group>) {
+  return (
+    <DropdownMenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
+  )
+}
+
+function DropdownMenuItem({
+  className,
+  inset,
+  variant = 'default',
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Item> & {
+  inset?: boolean
+  variant?: 'default' | 'destructive'
+}) {
+  return (
+    <DropdownMenuPrimitive.Item
+      data-slot="dropdown-menu-item"
+      data-inset={inset}
+      data-variant={variant}
+      className={cn(
+        'focus:bg-accent focus:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 dark:data-[variant=destructive]:focus:bg-destructive/20 data-[variant=destructive]:focus:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*=\'text-\'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+function DropdownMenuCheckboxItem({
+  className,
+  children,
+  checked,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.CheckboxItem>) {
+  return (
+    <DropdownMenuPrimitive.CheckboxItem
+      data-slot="dropdown-menu-checkbox-item"
+      className={cn(
+        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4',
+        className,
+      )}
+      checked={checked}
+      {...props}
+    >
+      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+        <DropdownMenuPrimitive.ItemIndicator>
+          <CheckIcon className="size-4" />
+        </DropdownMenuPrimitive.ItemIndicator>
+      </span>
+      {children}
+    </DropdownMenuPrimitive.CheckboxItem>
+  )
+}
+
+function DropdownMenuRadioGroup({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioGroup>) {
+  return (
+    <DropdownMenuPrimitive.RadioGroup
+      data-slot="dropdown-menu-radio-group"
+      {...props}
+    />
+  )
+}
+
+function DropdownMenuRadioItem({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.RadioItem>) {
+  return (
+    <DropdownMenuPrimitive.RadioItem
+      data-slot="dropdown-menu-radio-item"
+      className={cn(
+        'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*=\'size-\'])]:size-4',
+        className,
+      )}
+      {...props}
+    >
+      <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
+        <DropdownMenuPrimitive.ItemIndicator>
+          <CircleIcon className="size-2 fill-current" />
+        </DropdownMenuPrimitive.ItemIndicator>
+      </span>
+      {children}
+    </DropdownMenuPrimitive.RadioItem>
+  )
+}
+
+function DropdownMenuLabel({
+  className,
+  inset,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Label> & {
+  inset?: boolean
+}) {
+  return (
+    <DropdownMenuPrimitive.Label
+      data-slot="dropdown-menu-label"
+      data-inset={inset}
+      className={cn(
+        'px-2 py-1.5 text-sm font-medium data-[inset]:pl-8',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+function DropdownMenuSeparator({
+  className,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
+  return (
+    <DropdownMenuPrimitive.Separator
+      data-slot="dropdown-menu-separator"
+      className={cn('bg-border -mx-1 my-1 h-px', className)}
+      {...props}
+    />
+  )
+}
+
+function DropdownMenuShortcut({
+  className,
+  ...props
+}: React.ComponentProps<'span'>) {
+  return (
+    <span
+      data-slot="dropdown-menu-shortcut"
+      className={cn(
+        'text-muted-foreground ml-auto text-xs tracking-widest',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+function DropdownMenuSub({
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Sub>) {
+  return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />
+}
+
+function DropdownMenuSubTrigger({
+  className,
+  inset,
+  children,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.SubTrigger> & {
+  inset?: boolean
+}) {
+  return (
+    <DropdownMenuPrimitive.SubTrigger
+      data-slot="dropdown-menu-sub-trigger"
+      data-inset={inset}
+      className={cn(
+        'focus:bg-accent focus:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[inset]:pl-8',
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <ChevronRightIcon className="ml-auto size-4" />
+    </DropdownMenuPrimitive.SubTrigger>
+  )
+}
+
+function DropdownMenuSubContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
+  return (
+    <DropdownMenuPrimitive.SubContent
+      data-slot="dropdown-menu-sub-content"
+      className={cn(
+        'bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border p-1 shadow-lg',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+}
+</file>
+
+<file path="components/ui/form.tsx">
+'use client'
+
+import type * as LabelPrimitive from '@radix-ui/react-label'
+import type { ControllerProps, FieldPath, FieldValues } from 'react-hook-form'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
+
+import { Slot } from '@radix-ui/react-slot'
+import * as React from 'react'
+import {
+  Controller,
+
+  FormProvider,
+  useFormContext,
+  useFormState,
+} from 'react-hook-form'
+
+const Form = FormProvider
+
+interface FormFieldContextValue<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+> {
+  name: TName
+}
+
+const FormFieldContext = React.createContext<FormFieldContextValue>(
+  {} as FormFieldContextValue,
+)
+
+const FormItemContext = React.createContext<FormItemContextValue>(
+  {} as FormItemContextValue,
+)
+
+function FormField<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>,
+>({
+  ...props
+}: ControllerProps<TFieldValues, TName>) {
+  return (
+    <FormFieldContext value={{ name: props.name }}>
+      <Controller {...props} />
+    </FormFieldContext>
+  )
+}
+
+function useFormField() {
+  const fieldContext = React.use(FormFieldContext)
+  const itemContext = React.use(FormItemContext)
+  const { getFieldState } = useFormContext()
+  const formState = useFormState({ name: fieldContext.name })
+  const fieldState = getFieldState(fieldContext.name, formState)
+
+  if (!fieldContext) {
+    throw new Error('useFormField should be used within <FormField>')
+  }
+
+  const { id } = itemContext
+
+  return {
+    id,
+    name: fieldContext.name,
+    formItemId: `${id}-form-item`,
+    formDescriptionId: `${id}-form-item-description`,
+    formMessageId: `${id}-form-item-message`,
+    ...fieldState,
+  }
+}
+
+interface FormItemContextValue {
+  id: string
+}
+
+function FormItem({ className, ...props }: React.ComponentProps<'div'>) {
+  const id = React.useId()
+
+  return (
+    <FormItemContext value={{ id }}>
+      <div
+        data-slot="form-item"
+        className={cn('grid gap-2', className)}
+        {...props}
+      />
+    </FormItemContext>
+  )
+}
+
+function FormLabel({
+  className,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+  const { error, formItemId } = useFormField()
+
+  return (
+    <Label
+      data-slot="form-label"
+      data-error={!!error}
+      className={cn('data-[error=true]:text-destructive', className)}
+      htmlFor={formItemId}
+      {...props}
+    />
+  )
+}
+
+function FormControl({ ...props }: React.ComponentProps<typeof Slot>) {
+  const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+
+  return (
+    <Slot
+      data-slot="form-control"
+      id={formItemId}
+      aria-describedby={
+        !error
+          ? `${formDescriptionId}`
+          : `${formDescriptionId} ${formMessageId}`
+      }
+      aria-invalid={!!error}
+      {...props}
+    />
+  )
+}
+
+function FormDescription({ className, ...props }: React.ComponentProps<'p'>) {
+  const { formDescriptionId } = useFormField()
+
+  return (
+    <p
+      data-slot="form-description"
+      id={formDescriptionId}
+      className={cn('text-muted-foreground text-sm', className)}
+      {...props}
+    />
+  )
+}
+
+function FormMessage({ className, ...props }: React.ComponentProps<'p'>) {
+  const { error, formMessageId } = useFormField()
+  const body = error ? String(error?.message ?? '') : props.children
+
+  if (!body) {
+    return null
+  }
+
+  return (
+    <p
+      data-slot="form-message"
+      id={formMessageId}
+      className={cn('text-destructive text-sm', className)}
+      {...props}
+    >
+      {body}
+    </p>
+  )
+}
+
+export {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  useFormField,
+}
+</file>
+
+<file path="components/ui/input.tsx">
+import { cn } from '@/lib/utils'
+
+import * as React from 'react'
+
+function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
+  return (
+    <input
+      type={type}
+      data-slot="input"
+      className={cn(
+        'file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+        'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+        'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Input }
+</file>
+
+<file path="components/ui/label.tsx">
+'use client'
+
+import { cn } from '@/lib/utils'
+import * as LabelPrimitive from '@radix-ui/react-label'
+
+import * as React from 'react'
+
+function Label({
+  className,
+  ...props
+}: React.ComponentProps<typeof LabelPrimitive.Root>) {
+  return (
+    <LabelPrimitive.Root
+      data-slot="label"
+      className={cn(
+        'flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50',
+        className,
+      )}
+      {...props}
+    />
+  )
+}
+
+export { Label }
+</file>
+
+<file path="components/ui/skeleton.tsx">
+import { cn } from '@/lib/utils'
+
+function Skeleton({ className, ...props }: React.ComponentProps<'div'>) {
+  return (
+    <div
+      data-slot="skeleton"
+      className={cn('bg-accent animate-pulse rounded-md', className)}
+      {...props}
+    />
+  )
+}
+
+export { Skeleton }
+</file>
+
+<file path="components/ui/sonner.tsx">
+'use client'
+
+import type { ToasterProps } from 'sonner'
+import { useTheme } from 'next-themes'
+import { Toaster as Sonner } from 'sonner'
+
+function Toaster({ ...props }: ToasterProps) {
+  const { theme = 'system' } = useTheme()
+
+  return (
+    <Sonner
+      theme={theme as ToasterProps['theme']}
+      className="toaster group"
+      style={
+        {
+          '--normal-bg': 'var(--popover)',
+          '--normal-text': 'var(--popover-foreground)',
+          '--normal-border': 'var(--border)',
+        } as React.CSSProperties
+      }
+      {...props}
+    />
+  )
+}
+
+export { Toaster }
+</file>
+
+<file path="lib/utils.ts">
+import type { ClassValue } from 'clsx'
+import { clsx } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+</file>
+
+<file path="components.json">
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "new-york",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "iconLibrary": "lucide"
+}
+</file>
+
+<file path="postcss.config.mjs">
+const config = {
+  plugins: ['@tailwindcss/postcss'],
+}
+
+export default config
+</file>
+
+<file path="tsconfig.json">
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "ES2017",
+    "jsx": "preserve",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ]
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+</file>
+
+<file path="app/components/cocktail-card/detail-modal.tsx">
+import type { Cocktail } from '@/types/cocktails'
+import { deleteCocktail } from '@/api/cocktails/v1'
+import { DeleteOutlined } from '@ant-design/icons'
+import NiceModal from '@ebay/nice-modal-react'
+import { useMutation } from '@tanstack/react-query'
+import { Button, Modal, Popconfirm } from 'antd'
+import { toast } from 'sonner'
+
+export interface CocktailDetailModalProps {
+  cocktail: Cocktail
+  onDelete?: () => void
+  showDelete?: boolean
+}
+
+const CocktailDetailModal = NiceModal.create<CocktailDetailModalProps>((props) => {
+  const { cocktail, onDelete, showDelete } = props
+
+  const modal = NiceModal.useModal()
+
+  const { mutateAsync } = useMutation({
+    mutationFn: deleteCocktail,
+    onSuccess: () => {
+      toast.success('删除成功')
+      modal.hide()
+      onDelete?.()
+    },
+    onError: (error) => {
+      toast.error(error.message || '删除失败')
+    },
+  })
+
+  const handleWrap = (text: string) => {
+    if (!text)
+      return null
+
+    return text.split('\n').map((line, index) => (
+      <div key={index}>{line}</div>
+    ))
+  }
+
+  return (
+    <Modal
+      open={modal.visible}
+      onCancel={modal.hide}
+      closeIcon={null}
+      footer={null}
+    >
+      <div className="bg-white rounded-md">
+        <img
+          className="rounded-md object-cover object-[50%_75%] h-[400px] w-full"
+          src="https://iba-world.com/wp-content/uploads/2024/07/iba-cocktail-the-unforgettables-americano-669490fe3cb42.webp"
+        />
+        <div className="py-4 flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">{cocktail.name}</h1>
+          <div>
+            <h2 className="text-lg font-bold">材料</h2>
+            <ul>
+              {cocktail.ingredients?.map(ingredient => (
+                <li key={ingredient.id}>{ingredient.name}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <h2 className="text-lg font-bold">制作方法</h2>
+            <p>{handleWrap(cocktail.method)}</p>
+          </div>
+          {cocktail.garnish && (
+            <div>
+              <h2 className="text-lg font-bold">装饰</h2>
+              <p>{handleWrap(cocktail.garnish)}</p>
+            </div>
+          )}
+        </div>
+
+        {showDelete && (
+          <div className="flex justify-end">
+            <Popconfirm title="是否确定删除？" onConfirm={() => mutateAsync({ id: cocktail.id })}>
+              <Button icon={<DeleteOutlined />} danger>
+                删除
+              </Button>
+            </Popconfirm>
+          </div>
+        )}
+      </div>
+    </Modal>
+  )
+})
+
+export default CocktailDetailModal
+</file>
+
+<file path="app/components/login/index.tsx">
+'use client'
+
+import { usersLogin } from '@/api/users/v1'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+const formSchema = z.object({
+  username: z.string(),
+  password: z.string(),
+})
+
+type FormSchemaType = z.infer<typeof formSchema>
+
+/**
+ * 登录弹窗
+ */
+function Login() {
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+
+  const { mutate: login, isPending } = useMutation({
+    mutationFn: (values: FormSchemaType) => usersLogin(values),
+    onSuccess: () => {
+      toast.success('登录成功')
+      setIsOpen(false)
+      queryClient.invalidateQueries({ queryKey: ['userInfo'] })
+      form.reset()
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(formSchema),
+    disabled: isPending,
+    defaultValues: {
+      username: '',
+      password: '',
+    },
+  })
+
+  function onSubmit(values: FormSchemaType) {
+    login(values)
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button>登录</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="mb-4">登录</DialogTitle>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-8"
+              >
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>用户名</FormLabel>
+                      <FormControl>
+                        <Input placeholder="请输入用户名" {...field} />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>密码</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="请输入密码"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <Button disabled={isPending} type="submit">
+                  登录
+                </Button>
+              </form>
+            </Form>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+export default Login
+</file>
+
+<file path="app/mine/components/upload.tsx">
+import type { UploadFile, UploadProps } from 'antd'
+import type { FC } from 'react'
+import { getCosTempCredential } from '@/api/cos/v1'
+import { PlusOutlined } from '@ant-design/icons'
+import { useControllableValue } from 'ahooks'
+import { Upload as AntdUpload, Image } from 'antd'
+import COS from 'cos-js-sdk-v5'
+import { get } from 'lodash-es'
+import { useState } from 'react'
+
+const cos = new COS({
+  getAuthorization: async (opts, callback) => {
+    const res = await getCosTempCredential()
+    callback({
+      TmpSecretId: res.data.Credentials.TmpSecretId,
+      TmpSecretKey: res.data.Credentials.TmpSecretKey,
+      SecurityToken: res.data.Credentials.Token,
+      StartTime: res.data.StartTime,
+      ExpiredTime: res.data.ExpiredTime,
+    })
+  },
+})
+
+const Upload: FC<UploadProps> = (props) => {
+  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewImage, setPreviewImage] = useState('')
+
+  const [fileList, setFileList] = useControllableValue<UploadFile[]>(props, {
+    defaultValue: [],
+  })
+
+  const handlePreview = async (file: UploadFile) => {
+    // if (!file.url && !file.preview) {
+    // }
+
+    setPreviewImage(file.url || (file.preview as string))
+    setPreviewOpen(true)
+  }
+
+  const handleChange: UploadProps['onChange'] = ({ fileList: newFileList }) =>
+    setFileList(newFileList)
+
+  const uploadButton = (
+    <button style={{ border: 0, background: 'none' }} type="button">
+      <PlusOutlined />
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </button>
+  )
+
+  return (
+    <>
+      <AntdUpload
+        listType="picture-card"
+        fileList={fileList}
+        customRequest={(options) => {
+          const { file, onSuccess, onError, onProgress } = options
+          const uid = get(file, 'uid')
+
+          // 上传文件
+          cos.uploadFile(
+            {
+              Body: file,
+              Bucket: 'hedian-1334729790',
+              Region: 'ap-shanghai',
+              Key: `cocktails/${uid}`,
+              onProgress: (progressData) => {
+                onProgress?.({ percent: progressData.percent })
+              },
+            },
+            (err, data) => {
+              if (err) {
+                onError?.(err as any)
+              }
+              else {
+                onSuccess?.({
+                  ...data,
+                  url: `https://hedian-1334729790.cos.ap-shanghai.myqcloud.com/cocktails/${uid}`,
+                })
+              }
+            },
+          )
+        }}
+        onPreview={handlePreview}
+        onChange={handleChange}
+      >
+        {fileList?.length >= 8 ? null : uploadButton}
+      </AntdUpload>
+      {previewImage && (
+        <Image
+          wrapperStyle={{ display: 'none' }}
+          preview={{
+            visible: previewOpen,
+            onVisibleChange: visible => setPreviewOpen(visible),
+            afterOpenChange: visible => !visible && setPreviewImage(''),
+          }}
+          src={previewImage}
+        />
+      )}
+    </>
+  )
+}
+
+export default Upload
+</file>
+
+<file path="app/layout.tsx">
+import type { Metadata } from 'next'
+import { Toaster } from '@/components/ui/sonner'
+import { Geist, Geist_Mono } from 'next/font/google'
+import Header from './components/header'
+import Provider from './provider'
+import './globals.css'
+
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
+
+export const metadata: Metadata = {
+  title: '喝点',
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <Provider>
+          <Header />
+          <Toaster />
+          {children}
+        </Provider>
+      </body>
+    </html>
+  )
+}
+</file>
+
+<file path="utils/request.ts">
+import { isArray, isNil, isObject } from 'lodash-es'
+
+/**
+ * 发送 POST 请求
+ * @param url 请求地址
+ * @param data 请求数据
+ * @returns 响应数据
+ */
+async function post<R extends Record<string, any>, T>(url: string, data?: R): Promise<T> {
+  try {
+    const params = new URLSearchParams()
+
+    if (data) {
+      Object.entries(data).forEach(([key, value]) => {
+        if (isNil(value))
+          return
+        if (isArray(value) || isObject(value)) {
+          params.append(key, JSON.stringify(value))
+        }
+        else {
+          params.append(key, value)
+        }
+      })
+    }
+
+    const response = await fetch(
+      `${url}${params.toString() ? `?${params.toString()}` : ''}`,
+      {
+        method: 'POST',
+        credentials: 'include',
+      },
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || '请求失败')
+    }
+
+    const result = await response.json()
+
+    if (result.code !== 0) {
+      throw new Error(result.message || '请求失败')
+    }
+
+    return result.data
+  }
+  catch (error) {
+    if (error instanceof Error) {
+      throw new TypeError(`请求失败: ${error.message}`)
+    }
+    throw new Error('未知错误')
+  }
+}
+
+function createPost<R extends Record<string, any>, T>(url: string) {
+  return async (data?: R): Promise<T> => {
+    return post(url, data)
+  }
+}
+
+export default createPost
+</file>
+
+<file path="eslint.config.mjs">
+import antfu from '@antfu/eslint-config'
+
+export default antfu(
+  {
+    react: true,
+  },
+  {},
+  {
+    rules: {
+      'ts/no-use-before-define': ['off'],
+    },
+  },
+)
+</file>
+
+<file path="api/user-cocktails/v1/index.ts">
+import type { Cocktail } from '@/types/cocktails'
+import createPost from '@/utils/request'
+
+/**
+ * 添加鸡尾酒
+ */
+export const addCocktail = createPost<{ cocktailId: number }, object>(
+  '/v1/userCocktails/addCocktail',
+)
+
+/**
+ * 删除鸡尾酒
+ */
+export const removeCocktailStar = createPost<{ cocktailId: number }, object>(
+  '/v1/userCocktails/removeCocktail',
+)
+
+/**
+ * 获取用户鸡尾酒列表
+ */
+export const getCocktailList = createPost<{
+  page: number
+  size: number
+  is_makeable?: boolean
+}, {
+    list: Cocktail[]
+    total: number
+  }>(
+  '/v1/userCocktails/getCocktailList',
+)
+</file>
+
+<file path="app/components/cocktail-edit-modal/index.tsx">
+'use client'
+
+import type { Cocktail } from '@/types/cocktails'
+import { createCocktail, updateCocktail } from '@/api/cocktails/v1'
+import { searchIngredient } from '@/api/ingredients/v1'
+import {
+  MinusCircleOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons'
+import NiceModal from '@ebay/nice-modal-react'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Switch,
+  Tooltip,
+} from 'antd'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+const { TextArea } = Input
+
+interface CreateCocktailModalProps {
+  onSuccess: () => void
+  cocktail?: Cocktail
+}
+
+interface IngredientItem {
+  id: {
+    label: string
+    value: number
+  }
+  usage: string
+}
+
+interface FormValues {
+  name: string
+  ingredients: IngredientItem[]
+  method?: string
+  garnish?: string
+  note?: string
+  image?: string
+  is_public?: boolean
+}
+
+// zod 校验 schema
+const createCocktailSchema = z.object({
+  name: z.string().min(1, '配方名称不能为空').max(50, '配方名称最多50个字符'),
+  ingredients: z
+    .array(
+      z.object({
+        id: z.number({
+          required_error: '请选择材料',
+          invalid_type_error: '请选择有效的材料',
+        }),
+        usage: z.string().min(1, '请输入用量').max(20, '用量最多20个字符'),
+      }),
+    )
+    .min(1, '至少需要一个配料'),
+  method: z.string().max(400, '制作方法最多400个字符').optional(),
+  garnish: z.string().max(200, '装饰最多200个字符').optional(),
+  note: z.string().max(500, '备注最多500个字符').optional(),
+  image: z.string().optional(),
+  is_public: z.boolean().optional(),
+})
+
+/**
+ * 新建自定义配方弹窗
+ */
+const CreateCocktailModal = NiceModal.create<CreateCocktailModalProps>((props) => {
+  const { onSuccess, cocktail } = props
+
+  const [imagePreview, setImagePreview] = useState<string>('')
+  const [ingredientSearchTerm, setIngredientSearchTerm] = useState<string>('')
+
+  const [form] = Form.useForm<FormValues>()
+  const modal = NiceModal.useModal()
+
+  const isEdit = !!cocktail
+
+  useEffect(() => {
+    if (modal.visible && cocktail) {
+      form.setFieldsValue({
+        name: cocktail.name,
+        ingredients: cocktail.ingredients?.map(ingredient => ({
+          id: {
+            label: ingredient.name,
+            value: ingredient.id,
+          },
+          usage: ingredient.usage,
+        })) || [],
+        method: cocktail.method,
+        garnish: cocktail.garnish,
+        note: cocktail.note,
+        image: cocktail.image,
+        is_public: cocktail.is_public,
+      })
+    }
+  }, [modal.visible, cocktail, form])
+
+  const handleCancel = () => {
+    setImagePreview('')
+    setIngredientSearchTerm('')
+    form.resetFields()
+    modal.hide()
+  }
+
+  // 搜索材料
+  const { data: ingredientOptions, isLoading: searchLoading } = useQuery({
+    queryKey: ['searchIngredient', ingredientSearchTerm],
+    queryFn: () => searchIngredient({ keyword: ingredientSearchTerm }),
+    enabled: !!ingredientSearchTerm,
+    staleTime: 1 * 60 * 1000, // 1分钟
+  })
+
+  const { mutate: create, isPending } = useMutation({
+    mutationFn: createCocktail,
+    onSuccess: () => {
+      toast.success('配方创建成功! 🎉')
+      onSuccess?.()
+      handleCancel()
+    },
+    onError: (error) => {
+      toast.error(error.message || '创建失败，请重试')
+    },
+  })
+
+  const { mutate: update, isPending: isUpdatePending } = useMutation({
+    mutationFn: updateCocktail,
+    onSuccess: () => {
+      toast.success('配方更新成功! 🎉')
+      onSuccess?.()
+      handleCancel()
+    },
+    onError: (error) => {
+      toast.error(error.message || '更新失败，请重试')
+    },
+  })
+
+  const onFinish = (values: FormValues) => {
+    const validIngredients = values.ingredients
+      ?.filter(ingredient => ingredient.id?.value !== undefined && ingredient.usage?.trim())
+      ?.map(i => ({
+        usage: i.usage,
+        id: i?.id?.value,
+      }))
+
+    const dataToValidate = {
+      ...values,
+      ingredients: validIngredients,
+      image: imagePreview,
+    }
+
+    const { success, data, error } = createCocktailSchema.safeParse(dataToValidate)
+
+    if (!success) {
+      toast.error(`校验失败: ${error.message}`)
+      return
+    }
+
+    if (!data) {
+      toast.error('校验失败')
+      return
+    }
+
+    // 如果将配方公开从是改为否，则给一个二次确认
+    if (isEdit && cocktail.is_public && !data.is_public) {
+      Modal.confirm({
+        title: '确认将配方私有化吗？',
+        content: '私有化后其他用户将无法搜索到你的配方或并 star 你的配方',
+        onOk: () => {
+          update({ ...data, id: cocktail.id })
+        },
+      })
+      return
+    }
+
+    if (isEdit) {
+      update({ ...data, id: cocktail.id })
+    }
+    else {
+      create(data)
+    }
+  }
+
+  const ingredientSelectOptions = ingredientOptions?.list?.map(ingredient => ({
+    value: ingredient.id,
+    label: `${ingredient.name} ${ingredient.en_name || ''}`.trim(),
+  })) || []
+
+  const isLoading = isPending || isUpdatePending
+
+  return (
+    <Modal
+      title={isEdit ? '编辑自定义配方' : '创建自定义配方'}
+      open={modal.visible}
+      onCancel={handleCancel}
+      width={600}
+      footer={[
+        <Button key="cancel" onClick={handleCancel} disabled={isLoading}>
+          取消
+        </Button>,
+        <Button
+          key="submit"
+          type="primary"
+          loading={isLoading}
+          onClick={() => form.submit()}
+        >
+          {isEdit ? '保存' : '创建配方'}
+        </Button>,
+      ]}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={{
+          ingredients: [{ id: undefined, usage: '' }],
+          is_public: true,
+        }}
+      >
+        {/* 基本信息 */}
+        <Form.Item
+          name="name"
+          label="配方名称"
+          rules={[
+            { required: true, message: '配方名称不能为空' },
+            { max: 50, message: '配方名称最多50个字符' },
+          ]}
+        >
+          <Input placeholder="例如：莫吉托" />
+        </Form.Item>
+
+        {/* 配料信息 */}
+        <Form.Item label="配料清单" required>
+          <Card size="small" className="bg-gray-50">
+            <Form.List name="ingredients">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Row key={key} gutter={12} align="middle">
+                      <Col xs={12} md={10}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'id']}
+                          rules={[{ required: true, message: '请选择材料' }]}
+                        >
+                          <Select
+                            placeholder="搜索并选择材料"
+                            showSearch
+                            filterOption={false}
+                            loading={searchLoading}
+                            onSearch={setIngredientSearchTerm}
+                            options={ingredientSelectOptions}
+                            labelInValue
+                            notFoundContent={
+                              ingredientSearchTerm
+                                ? searchLoading
+                                  ? '搜索中...'
+                                  : '未找到相关材料'
+                                : '请输入材料名称搜索'
+                            }
+                          />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={8} md={6}>
+                        <Form.Item
+                          {...restField}
+                          name={[name, 'usage']}
+                          rules={[
+                            { required: true, message: '请输入用量' },
+                            { max: 20, message: '用量最多20个字符' },
+                          ]}
+                        >
+                          <Input placeholder="例如：50ml" />
+                        </Form.Item>
+                      </Col>
+                      <Col xs={4} md={2}>
+                        {fields.length > 1 && (
+                          <Button
+                            type="text"
+                            danger
+                            icon={<MinusCircleOutlined />}
+                            onClick={() => remove(name)}
+                          />
+                        )}
+                      </Col>
+                    </Row>
+                  ))}
+                  <Button
+                    type="dashed"
+                    onClick={() => add({ id: undefined, usage: '' })}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    添加材料
+                  </Button>
+                </>
+              )}
+            </Form.List>
+          </Card>
+        </Form.Item>
+
+        <Form.Item
+          name="method"
+          label="制作方法"
+          rules={[
+            { required: true, message: '请输入制作方法' },
+            { max: 400, message: '制作方法最多400个字符' },
+          ]}
+        >
+          <TextArea placeholder="详细描述制作步骤..." rows={4} />
+        </Form.Item>
+
+        <Form.Item
+          name="garnish"
+          label="装饰"
+          rules={[{ max: 200, message: '装饰说明最多200个字符' }]}
+        >
+          <TextArea placeholder="例如：薄荷叶装饰" rows={2} />
+        </Form.Item>
+
+        <Form.Item
+          name="note"
+          label="备注"
+          rules={[{ max: 500, message: '备注最多500个字符' }]}
+        >
+          <TextArea placeholder="特殊说明或小贴士" rows={2} />
+        </Form.Item>
+
+        {/* TODO: 等域名备案之后，增加上传图片功能 */}
+        {/* <Form.Item label="配方图片" name="image">
+          <Upload />
+        </Form.Item> */}
+
+        <Form.Item
+          name="is_public"
+          label={(
+            <span>
+              <span className="mr-1">公开配方</span>
+              <Tooltip title="公开后其他用户可以搜索到你的配方，并 star 你的配方">
+                <QuestionCircleOutlined />
+              </Tooltip>
+            </span>
+          )}
+          valuePropName="checked"
+        >
+          <Switch checkedChildren="公开" unCheckedChildren="私有" />
+        </Form.Item>
+      </Form>
+    </Modal>
+  )
+},
+)
+
+export default CreateCocktailModal
+</file>
+
+<file path="app/components/register/index.tsx">
+'use client'
+
+import { usersLogin, usersRegister } from '@/api/users/v1'
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
+import { z } from 'zod'
+
+const formSchema = z
+  .object({
+    username: z.string(),
+    password: z.string(),
+    confirmPassword: z.string(),
+  })
+  .refine(data => data.password === data.confirmPassword, {
+    message: '两次输入的密码不一致',
+    path: ['confirmPassword'],
+  })
+
+type FormSchemaType = z.infer<typeof formSchema>
+
+/**
+ * 注册弹窗
+ */
+function Register() {
+  const [isOpen, setIsOpen] = useState(false)
+  const queryClient = useQueryClient()
+
+  const { mutate: login, isPending: isLoginPending } = useMutation({
+    mutationFn: (values: { username: string, password: string }) =>
+      usersLogin(values),
+    onSuccess: () => {
+      toast.success('登录成功')
+      setIsOpen(false)
+      form.reset()
+      queryClient.invalidateQueries({ queryKey: ['userInfo'] })
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const { mutate: register, isPending: isRegisterPending } = useMutation({
+    mutationFn: (values: FormSchemaType) => usersRegister(values),
+    onSuccess: (_, values) => {
+      toast.success('注册成功')
+      login(values)
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  const form = useForm<FormSchemaType>({
+    resolver: zodResolver(formSchema),
+    disabled: isRegisterPending || isLoginPending,
+    defaultValues: {
+      username: '',
+      password: '',
+      confirmPassword: '',
+    },
+  })
+
+  function onSubmit(values: FormSchemaType) {
+    register(values)
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">注册</Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="mb-4">注册</DialogTitle>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>用户名</FormLabel>
+                    <FormControl>
+                      <Input placeholder="请输入用户名" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>密码</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="请输入密码"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="confirmPassword"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>确认密码</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="请再次输入密码"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                disabled={isRegisterPending || isLoginPending}
+                type="submit"
+              >
+                {isRegisterPending || isLoginPending ? '处理中...' : '注册'}
+              </Button>
+            </form>
+          </Form>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export default Register
+</file>
+
+<file path="app/home/cocktail-card.tsx">
+import type { Cocktail } from '@/types/cocktails'
+import type { FC } from 'react'
+import { addCocktail } from '@/api/user-cocktails/v1'
+import { Button } from '@/components/ui/button'
+import { useMutation } from '@tanstack/react-query'
+import { toast } from 'sonner'
+
+export interface CocktailCardProps {
+  cocktail: Cocktail
+}
+
+/**
+ * 鸡尾酒卡片
+ */
+const CocktailCard: FC<CocktailCardProps> = (props) => {
+  const { cocktail } = props
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: addCocktail,
+    onSuccess: () => {
+      toast.success('添加成功')
+    },
+    onError: () => {
+      toast.error('添加失败')
+    },
+  })
+
+  const handleAddCocktail = () => {
+    mutate({ cocktailId: cocktail.id })
+  }
+
+  return (
+    <div className="p-4 border rounded-md flex justify-between">
+      <div>
+        <h2 className="text-lg font-bold">{cocktail.name}</h2>
+        <h2 className="text-sm text-gray-500">{cocktail.en_name}</h2>
+        <div className="flex flex-wrap gap-2">
+          {cocktail.ingredients?.map(ingredient => (
+            <div key={ingredient.id} className="flex bg-amber-100 rounded-md px-2 py-1">
+              <p className="text-sm">{ingredient.name}</p>
+              <p className="text-sm">{ingredient.en_name}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <Button size="sm" disabled={isPending} onClick={handleAddCocktail}>
+          {isPending ? '添加中...' : '+'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+export default CocktailCard
+</file>
+
+<file path="types/ingredient.ts">
+export interface Ingredient {
+  en_name: string
+  description: string
+  id: number
+  name: string
+  /** 用量 */
+  usage: string
+}
+</file>
+
+<file path="next.config.ts">
+import type { NextConfig } from 'next'
+
+const nextConfig: NextConfig = {
+  /* config options here */
+  env: {
+    API_URL: 'http://hedianer.cn',
+  },
+  async rewrites() {
+    // eslint-disable-next-line node/prefer-global/process
+    const isDev = process.env.NODE_ENV === 'development'
+
+    if (isDev) {
+      return [
+        {
+          source: '/v1/:path*',
+          destination: 'http://localhost:8001/v1/:path*',
+        },
+      ]
+    }
+
+    return [
+      {
+        source: '/v1/:path*',
+        destination: 'http://hedianer.cn/v1/:path*',
+      },
+    ]
+  },
+}
+
+export default nextConfig
+</file>
+
+<file path="api/cocktails/v1/index.ts">
+import type { Cocktail } from '@/types/cocktails'
+import createPost from '@/utils/request'
+
+/**
+ * 获取鸡尾酒列表
+ * @param page 页码
+ * @param size 每页数量
+ * @returns 鸡尾酒列表
+ */
+export const cocktailsGetList = createPost<
+  { page: number, size: number },
+  {
+    list: Cocktail[]
+    total: number
+  }
+>('/v1/cocktails/getList')
+
+/**
+ * 创建自定义配方
+ */
+export const createCocktail = createPost<
+  {
+    name: string
+    ingredients: Array<{
+      id: number
+      usage: string
+    }>
+    method?: string
+    garnish?: string
+    note?: string
+    image?: string
+    is_public?: boolean
+  },
+  { id: number }
+>('/v1/cocktails/create')
+
+/**
+ * 更新自定义配方
+ */
+export const updateCocktail = createPost<
+  {
+    id: number
+    name: string
+    ingredients: Array<{
+      id: number
+      usage: string
+    }>
+    method?: string
+    garnish?: string
+    note?: string
+    image?: string
+    is_public?: boolean
+  },
+  { id: number }
+>('/v1/cocktails/update')
+
+/**
+ * 删除自定义配方
+ */
+export const deleteCocktail = createPost<
+  { id: number },
+  { id: number }
+>('/v1/cocktails/delete')
+</file>
+
+<file path="app/components/header/index.tsx">
+'use client'
+
+import { usersInfo, usersLogout } from '@/api/users/v1'
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import clsx from 'clsx'
+import Link from 'next/link'
+import { usePathname, useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import Login from '../login'
+import Register from '../register'
+
+function Header() {
+  const queryClient = useQueryClient()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const {
+    data: userInfo,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['userInfo'],
+    queryFn: () => usersInfo(),
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5分钟
+    refetchOnWindowFocus: false,
+  })
+
+  const { mutate: logout } = useMutation({
+    mutationFn: () => usersLogout(),
+    onSuccess: () => {
+      toast.success('退出成功')
+      queryClient.setQueryData(['userInfo'], null)
+      router.push('/home')
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-between items-center p-4">
+        <div className="text-2xl font-bold">🍺 喝点</div>
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-9 w-16" />
+        </div>
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex justify-between items-center p-4">
+        <div className="text-2xl font-bold">🍺 喝点</div>
+        <div className="flex items-center gap-4">
+          <Login />
+          <Register />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex justify-between items-center p-4">
+      <Link href="/home" className={clsx('text-2xl font-bold p-1 rounded-md', { 'bg-amber-300': pathname === '/home' })}>🍺 首页</Link>
+      <Link href="/mine" className={clsx('text-2xl font-bold p-1 rounded-md', { 'bg-amber-300': pathname === '/mine' })}>🍹 我的</Link>
+      <div className="flex items-center gap-4">
+        {userInfo?.username
+          ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost">{userInfo.username}</Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => logout()}>
+                    退出登录
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )
+          : (
+              <div className="flex items-center gap-2">
+                <Login />
+                <Register />
+              </div>
+            )}
+      </div>
+    </div>
+  )
+}
+
+export default Header
+</file>
+
+<file path="app/page.tsx">
+export default function Home() {
+  return (
+    <div className="p-4 flex flex-col gap-4">
+      喝点
+    </div>
+  )
+}
+</file>
+
+<file path="app/components/cocktail-card/index.tsx">
+import type { Cocktail } from '@/types/cocktails'
+import type { FC, ReactNode } from 'react'
+import { addCocktail, removeCocktailStar } from '@/api/user-cocktails/v1'
+import CocktailEditModal from '@/app/components/cocktail-edit-modal'
+import { EditOutlined, StarFilled, StarOutlined } from '@ant-design/icons'
+import NiceModal from '@ebay/nice-modal-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import CocktailDetailModal from './detail-modal'
+
+export interface CocktailCardProps {
+  cocktail: Cocktail
+  /** 是否显示删除按钮 */
+  showDelete?: boolean
+  /** 是否显示编辑按钮 */
+  showEdit?: boolean
+  onSuccess?: () => void
+  onDelete?: () => void
+  /** star 鸡尾酒成功时回调 */
+  onStar?: () => void
+  /** 删除 star 成功时回调 */
+  onRemoveStar?: () => void
+}
+
+/**
+ * 鸡尾酒卡片
+ */
+const CocktailCard: FC<CocktailCardProps> = (props) => {
+  const { cocktail, showDelete, showEdit, onRemoveStar, onStar, onSuccess, onDelete } = props
+
+  const queryClient = useQueryClient()
+  const userInfo = queryClient.getQueryData<{ username: string }>(['userInfo'])
+
+  const isMine = userInfo?.username === cocktail.author_name
+  const isStar = cocktail.is_star
+
+  const { mutate: starCocktail, isSuccess } = useMutation({
+    mutationFn: addCocktail,
+    onSuccess: () => {
+      toast.success('添加成功')
+      onStar?.()
+    },
+    onError: () => {
+      toast.error('添加失败')
+    },
+  })
+
+  const { mutate: removeStar } = useMutation({
+    mutationFn: removeCocktailStar,
+    onSuccess: () => {
+      toast.success('删除成功')
+      onRemoveStar?.()
+    },
+    onError: () => {
+      toast.error('删除失败')
+    },
+  })
+
+  const handleClick = () => {
+    NiceModal.show(CocktailDetailModal, {
+      cocktail,
+      onDelete,
+      showDelete: isMine && showDelete,
+    })
+  }
+
+  const handleEdit = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation()
+    NiceModal.show(CocktailEditModal, { cocktail, onSuccess })
+  }
+
+  const handleStar = (e: React.MouseEvent<HTMLDivElement>) => {
+    // 自己创建的不能 star
+    if (isMine)
+      return
+
+    e.stopPropagation()
+    isStar ? removeStar({ cocktailId: cocktail.id }) : starCocktail({ cocktailId: cocktail.id })
+  }
+
+  const handleStarIcon = () => {
+    let content:ReactNode = <StarOutlined />;
+    if (isMine) return;
+
+    if (isStar) {
+      content = <StarFilled style={{ color: '#FFD659' }} />
+    }
+
+    if (isSuccess) {
+      content = <StarFilled style={{ color: '#FFD659' }} />
+    }
+
+    return (
+      <div
+      className="h-full flex items-center justify-center cursor-pointer"
+      onClick={handleStar}
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="border rounded-md flex hover:shadow-md transition-shadow duration-300 cursor-pointer p-4"
+      onClick={handleClick}
+    >
+      <div className="grow h-full flex flex-col gap-2 justify-center">
+        <h2 className="text-lg font-bold">{cocktail.name}</h2>
+        <div className="flex flex-wrap gap-2">
+          {cocktail.ingredients?.map(ingredient => (
+            <div key={ingredient.id} className="flex bg-amber-100 rounded-md px-2 py-1">
+              <p className="text-sm">{ingredient.name}</p>
+            </div>
+          ))}
+        </div>
+        <div className="flex gap-2 items-center">
+          <div className="flex gap-1">
+            <StarOutlined /> {cocktail.star}
+          </div>
+          <div>{cocktail.author_name}</div>
+        </div>
+      </div>
+      <div className="flex items-center gap-4 shrink-0 pr-4">
+        {isMine && showEdit && (
+          <div
+            className="h-full flex items-center justify-center"
+            onClick={handleEdit}
+          >
+            <EditOutlined />
+          </div>
+        )}
+        {handleStarIcon()}
+      </div>
+    </div>
+  )
+}
+
+export default CocktailCard
+</file>
+
+<file path="app/provider.tsx">
+'use client'
+
+import NiceModal from '@ebay/nice-modal-react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import '@ant-design/v5-patch-for-react-19'
+
+const queryClient = new QueryClient()
+
+const { Provider: NiceModalProvider } = NiceModal
+
+function Provider({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <NiceModalProvider>{children}</NiceModalProvider>
+    </QueryClientProvider>
+  )
+}
+
+export default Provider
+</file>
+
+<file path="app/home/page.tsx">
+'use client'
+
+import { cocktailsGetList } from '@/api/cocktails/v1'
+import CocktailCard from '@/app/components/cocktail-card'
+import { Button } from '@/components/ui/button'
+import { useInfiniteQuery } from '@tanstack/react-query'
+
+export default function Home() {
+  const { data, isLoading, isError, error, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery({
+    queryKey: ['cocktails'],
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => cocktailsGetList({ page: pageParam, size: 10 }),
+    getNextPageParam: (lastPage, pages) => lastPage.total > pages.length * 10 ? pages.length + 1 : undefined,
+  })
+
+  return (
+    <div className="container mx-auto p-4 max-w-4xl">
+      {/* 头部操作区 */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-2xl font-bold">鸡尾酒大全</h1>
+          <p className="text-gray-600 text-sm">发现精彩配方，创造属于你的鸡尾酒</p>
+        </div>
+      </div>
+
+      {/* 鸡尾酒列表 */}
+      <div className="space-y-4">
+        {data?.pages.map(page =>
+          page.list.map(cocktail => (
+            <CocktailCard 
+              key={cocktail.id} 
+              cocktail={cocktail} 
+              onStar={() => refetch()}
+              onRemoveStar={() => refetch()}
+             />
+          )),
+        )}
+
+        {isLoading && (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="text-gray-500 mt-2">加载中...</p>
+          </div>
+        )}
+
+        {isError && (
+          <div className="text-center py-8">
+            <p className="text-red-500">
+              加载失败:
+              {error.message}
+            </p>
+            <Button variant="outline" onClick={() => window.location.reload()} className="mt-2">
+              重试
+            </Button>
+          </div>
+        )}
+
+        {hasNextPage && (
+          <div className="text-center py-4">
+            <Button onClick={() => fetchNextPage()} variant="outline">
+              加载更多
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+</file>
+
+<file path="types/cocktails.ts">
+import type { Ingredient } from './ingredient'
+
+export interface Cocktail {
+  created_at: string
+  en_ingredients: string
+  name: string
+  en_name: string
+  garnish: string
+  history: string
+  id: number
+  image: string
+  ingredients?: Ingredient[]
+  method: string
+  note: string
+  updated_at: string
+  author_id: number
+  author_name: string
+  /** 是否是当前用户 star 的配方 */
+  is_star: boolean
+  /** 是否是公开的配方 */
+  is_public: boolean
+  /** star 数 */
+  star: number
+}
+</file>
+
+<file path="package.json">
+{
+  "name": "hedian-pc",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.5.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint --fix"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@ebay/nice-modal-react": "^1.2.13",
+    "@hookform/resolvers": "^5.0.1",
+    "@radix-ui/react-dialog": "^1.1.7",
+    "@radix-ui/react-dropdown-menu": "^2.1.7",
+    "@radix-ui/react-label": "^2.1.3",
+    "@radix-ui/react-slot": "^1.2.0",
+    "@tanstack/react-query": "^5.72.2",
+    "@types/lodash-es": "^4.17.12",
+    "ahooks": "^3.8.5",
+    "antd": "^5.25.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "cos-js-sdk-v5": "^1.10.1",
+    "lodash-es": "^4.17.21",
+    "lucide-react": "^0.487.0",
+    "next": "15.2.5",
+    "next-themes": "^0.4.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.55.0",
+    "sonner": "^2.0.3",
+    "tailwind-merge": "^3.2.0",
+    "tw-animate-css": "^1.2.5",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^4.11.0",
+    "@eslint-react/eslint-plugin": "^1.52.2",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@tanstack/eslint-plugin-query": "^5.72.2",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9.24.0",
+    "eslint-config-next": "15.2.5",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "lint-staged": "^16.1.2",
+    "simple-git-hooks": "^2.13.0",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
+  }
+}
+</file>
+
+<file path="app/mine/page.tsx">
+'use client'
+
+import { getCocktailList } from '@/api/user-cocktails/v1'
+import { getUserIngredientsList, removeIngredient } from '@/api/user-ingredients/v1'
+import CocktailCard from '@/app/components/cocktail-card'
+import CreateCocktailModal from '@/app/components/cocktail-edit-modal'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import NiceModal from '@ebay/nice-modal-react'
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
+import { Button, Switch, Typography } from 'antd'
+import { useState } from 'react'
+import { toast } from 'sonner'
+import IngredientModal from './components/ingredient-modal'
+
+const { Text } = Typography
+
+export default function Home() {
+  const [checked, setChecked] = useState(false)
+
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    refetch: cocktailListRefetch,
+  } = useInfiniteQuery({
+    queryKey: ['userCocktails', checked],
+    queryFn: ({ pageParam }) => getCocktailList({ page: pageParam, size: 10, is_makeable: checked }),
+    initialPageParam: 1,
+    staleTime: 0,
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.total > pages.length * 10 ? pages.length + 1 : undefined
+    },
+  })
+
+  const {
+    data: ingredientsData,
+    refetch: ingredientsRefetch,
+  } = useInfiniteQuery({
+    queryKey: ['userIngredients'],
+    queryFn: ({ pageParam }) => getUserIngredientsList({ page: pageParam, size: 20 }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.total > pages.length * 10 ? pages.length + 1 : undefined
+    },
+  })
+
+  const { mutate: removeIngredientMutate } = useMutation({
+    mutationFn: removeIngredient,
+    onSuccess: () => {
+      toast.success('删除成功')
+      ingredientsRefetch()
+    },
+    onError: () => {
+      toast.error('删除失败')
+    },
+  })
+
+  return (
+    <div className="p-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">我的鸡尾酒</h1>
+          <div>
+            <Switch
+              checked={checked}
+              onChange={e => setChecked(e)}
+              checkedChildren="可调配"
+              unCheckedChildren="全部"
+            />
+          </div>
+          <div
+            className="border rounded-md flex h-[70px] hover:shadow-md transition-shadow duration-300 cursor-pointer items-center justify-center"
+            onClick={() => NiceModal.show(CreateCocktailModal, { onSuccess: () => cocktailListRefetch() })}
+          >
+            <PlusOutlined />
+            创建配方
+          </div>
+          {data?.pages.map(page =>
+            page.list?.map(cocktail => (
+              <CocktailCard
+                showDelete
+                showEdit
+                key={cocktail.id}
+                cocktail={cocktail}
+                onRemoveStar={cocktailListRefetch}
+                onSuccess={cocktailListRefetch}
+                onDelete={cocktailListRefetch}
+              />
+            )),
+          )}
+          {isLoading && <div>Loading...</div>}
+          {isError && (
+            <div>
+              Error:
+              {error.message}
+            </div>
+          )}
+          {hasNextPage && (
+            <Button onClick={() => fetchNextPage()}>Load more</Button>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-4">
+          <h1 className="text-2xl font-bold">我的库存</h1>
+          <div className="grid grid-cols-4 gap-4">
+            <div
+              className="flex flex-col border rounded-md aspect-square items-center justify-center cursor-pointer"
+              onClick={() => NiceModal.show(IngredientModal, {
+                onSuccess: () => ingredientsRefetch(),
+              })}
+            >
+              <PlusOutlined />
+              添加材料
+            </div>
+            {ingredientsData?.pages.map(page =>
+              page.list?.map(ingredient => (
+                <div key={ingredient.id}>
+                  <div
+                    className="flex flex-col gap-2 border rounded-md p-2 aspect-square"
+                  >
+                    <img src="https://img.shoplineapp.com/media/image_clips/665e74b7d9055a000d121f0b/original.jpg?1717466294" />
+                    <Button
+                      icon={<DeleteOutlined />}
+                      type="text"
+                      onClick={() => removeIngredientMutate({ ingredient_id: ingredient.id })}
+                    >
+                    </Button>
+                  </div>
+                  <Text className="w-full text-center" ellipsis={{ tooltip: true }}>{ingredient.name}</Text>
+                </div>
+              )),
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+</file>
+
+</files>
