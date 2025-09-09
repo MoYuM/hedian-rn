@@ -102,6 +102,9 @@ Key Conventions
 Node Version
 - 22
 
+Package Manager
+- pnpm@10.15.1
+
 API Documentation
 - Use Expo's official documentation for setting up and configuring your projects: https://docs.expo.dev/
 
