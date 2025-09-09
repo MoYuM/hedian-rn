@@ -99,6 +99,9 @@ Key Conventions
 6. Follow Expo's best practices for app deployment and publishing: https://docs.expo.dev/distribution/introduction/
 7. Ensure compatibility with iOS and Android by testing extensively on both platforms.
 
+Node Version
+- 22
+
 API Documentation
 - Use Expo's official documentation for setting up and configuring your projects: https://docs.expo.dev/
 
