@@ -33,19 +33,19 @@ export default function RegisterScreen() {
       // 注册成功后自动登录
       loginMutation.mutate({ username, password });
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
 
   const loginMutation = useMutation({
     mutationFn: login,
-    onSuccess: (data) => {
+    onSuccess: data => {
       loginUser(data.token, { username });
       Alert.alert('成功', '注册并登录成功！');
       router.replace('/(tabs)');
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
@@ -81,12 +81,23 @@ export default function RegisterScreen() {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <ThemedView style={styles.content}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBackToLogin}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBackToLogin}
+            >
               <ThemedText type="link">← 返回登录</ThemedText>
             </TouchableOpacity>
 
             <View style={styles.logoContainer}>
-              <View style={[styles.logo, { backgroundColor: backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF' }]}>
+              <View
+                style={[
+                  styles.logo,
+                  {
+                    backgroundColor:
+                      backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF',
+                  },
+                ]}
+              >
                 <ThemedText style={styles.logoText}>H</ThemedText>
               </View>
             </View>
@@ -102,13 +113,17 @@ export default function RegisterScreen() {
                   style={[
                     styles.input,
                     {
-                      backgroundColor: backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
+                      backgroundColor:
+                        backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
                       color: textColor,
-                      borderColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040'
-                    }
+                      borderColor:
+                        backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                    },
                   ]}
                   placeholder="请输入用户名"
-                  placeholderTextColor={backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'}
+                  placeholderTextColor={
+                    backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'
+                  }
                   value={username}
                   onChangeText={setUsername}
                   autoCapitalize="none"
@@ -116,20 +131,23 @@ export default function RegisterScreen() {
                 />
               </View>
 
-
               <View style={styles.inputContainer}>
                 <ThemedText style={styles.inputLabel}>密码</ThemedText>
                 <TextInput
                   style={[
                     styles.input,
                     {
-                      backgroundColor: backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
+                      backgroundColor:
+                        backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
                       color: textColor,
-                      borderColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040'
-                    }
+                      borderColor:
+                        backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                    },
                   ]}
                   placeholder="请输入密码（至少6位）"
-                  placeholderTextColor={backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'}
+                  placeholderTextColor={
+                    backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'
+                  }
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry
@@ -143,13 +161,17 @@ export default function RegisterScreen() {
                   style={[
                     styles.input,
                     {
-                      backgroundColor: backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
+                      backgroundColor:
+                        backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
                       color: textColor,
-                      borderColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040'
-                    }
+                      borderColor:
+                        backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                    },
                   ]}
                   placeholder="请再次输入密码"
-                  placeholderTextColor={backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'}
+                  placeholderTextColor={
+                    backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'
+                  }
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   secureTextEntry
@@ -161,20 +183,27 @@ export default function RegisterScreen() {
                 style={[
                   styles.registerButton,
                   {
-                    backgroundColor: backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF',
+                    backgroundColor:
+                      backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF',
                   },
-                  (registerMutation.isPending || loginMutation.isPending) && styles.registerButtonDisabled
+                  (registerMutation.isPending || loginMutation.isPending) &&
+                    styles.registerButtonDisabled,
                 ]}
                 onPress={handleRegister}
                 activeOpacity={0.8}
                 disabled={registerMutation.isPending || loginMutation.isPending}
               >
                 <ThemedText style={styles.registerButtonText}>
-                  {(registerMutation.isPending || loginMutation.isPending) ? '注册中...' : '创建账户'}
+                  {registerMutation.isPending || loginMutation.isPending
+                    ? '注册中...'
+                    : '创建账户'}
                 </ThemedText>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.loginLink} onPress={handleBackToLogin}>
+              <TouchableOpacity
+                style={styles.loginLink}
+                onPress={handleBackToLogin}
+              >
                 <ThemedText style={styles.loginLinkText}>
                   已有账户？<ThemedText type="link">立即登录</ThemedText>
                 </ThemedText>

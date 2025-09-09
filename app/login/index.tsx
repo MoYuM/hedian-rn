@@ -26,12 +26,12 @@ export default function LoginScreen() {
 
   const loginMutation = useMutation({
     mutationFn: login,
-    onSuccess: (data) => {
+    onSuccess: data => {
       login(data.token, { username });
       Alert.alert('成功', '登录成功！');
       router.replace('/(tabs)');
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
@@ -58,7 +58,15 @@ export default function LoginScreen() {
         <ThemedView style={styles.content}>
           {/* Logo 区域 */}
           <View style={styles.logoContainer}>
-            <View style={[styles.logo, { backgroundColor: backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF' }]}>
+            <View
+              style={[
+                styles.logo,
+                {
+                  backgroundColor:
+                    backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF',
+                },
+              ]}
+            >
               <ThemedText style={styles.logoText}>H</ThemedText>
             </View>
           </View>
@@ -74,13 +82,17 @@ export default function LoginScreen() {
                 style={[
                   styles.input,
                   {
-                    backgroundColor: backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
+                    backgroundColor:
+                      backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
                     color: textColor,
-                    borderColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040'
-                  }
+                    borderColor:
+                      backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                  },
                 ]}
                 placeholder="请输入用户名"
-                placeholderTextColor={backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'}
+                placeholderTextColor={
+                  backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'
+                }
                 value={username}
                 onChangeText={setUsername}
                 autoCapitalize="none"
@@ -94,13 +106,17 @@ export default function LoginScreen() {
                 style={[
                   styles.input,
                   {
-                    backgroundColor: backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
+                    backgroundColor:
+                      backgroundColor === '#fff' ? '#f8f9fa' : '#2a2a2a',
                     color: textColor,
-                    borderColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040'
-                  }
+                    borderColor:
+                      backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                  },
                 ]}
                 placeholder="请输入密码"
-                placeholderTextColor={backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'}
+                placeholderTextColor={
+                  backgroundColor === '#fff' ? '#adb5bd' : '#6c757d'
+                }
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry
@@ -112,9 +128,10 @@ export default function LoginScreen() {
               style={[
                 styles.loginButton,
                 {
-                  backgroundColor: backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF',
+                  backgroundColor:
+                    backgroundColor === '#fff' ? '#0a7ea4' : '#007AFF',
                 },
-                loginMutation.isPending && styles.loginButtonDisabled
+                loginMutation.isPending && styles.loginButtonDisabled,
               ]}
               onPress={handleLogin}
               activeOpacity={0.8}
@@ -126,21 +143,38 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.forgotPassword}>
-              <ThemedText type="link">
-                忘记密码？
-              </ThemedText>
+              <ThemedText type="link">忘记密码？</ThemedText>
             </TouchableOpacity>
 
             <View style={styles.divider}>
-              <View style={[styles.dividerLine, { backgroundColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040' }]} />
+              <View
+                style={[
+                  styles.dividerLine,
+                  {
+                    backgroundColor:
+                      backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                  },
+                ]}
+              />
               <ThemedText style={styles.dividerText}>或</ThemedText>
-              <View style={[styles.dividerLine, { backgroundColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040' }]} />
+              <View
+                style={[
+                  styles.dividerLine,
+                  {
+                    backgroundColor:
+                      backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                  },
+                ]}
+              />
             </View>
 
             <TouchableOpacity
               style={[
                 styles.registerButton,
-                { borderColor: backgroundColor === '#fff' ? '#e9ecef' : '#404040' }
+                {
+                  borderColor:
+                    backgroundColor === '#fff' ? '#e9ecef' : '#404040',
+                },
               ]}
               onPress={handleRegister}
             >

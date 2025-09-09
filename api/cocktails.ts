@@ -1,54 +1,58 @@
-import { PaginatedResponse, PaginationParams } from '../types/api'
-import { Cocktail } from '../types/cocktails'
-import { post } from '../utils/request'
+import { PaginatedResponse, PaginationParams } from '../types/api';
+import { Cocktail } from '../types/cocktails';
+import { post } from '../utils/request';
 
 /**
  * 获取鸡尾酒列表
  */
-export const getCocktailsList = (params: PaginationParams): Promise<PaginatedResponse<Cocktail>> => {
-  return post<PaginatedResponse<Cocktail>>('/v1/cocktails/getList', params)
-}
+export const getCocktailsList = (
+  params: PaginationParams
+): Promise<PaginatedResponse<Cocktail>> => {
+  return post<PaginatedResponse<Cocktail>>('/v1/cocktails/getList', params);
+};
 
 /**
  * 创建自定义配方
  */
 export const createCocktail = (data: {
-  name: string
+  name: string;
   ingredients: Array<{
-    id: number
-    usage: string
-  }>
-  method?: string
-  garnish?: string
-  note?: string
-  image?: string
-  is_public?: boolean
+    id: number;
+    usage: string;
+  }>;
+  method?: string;
+  garnish?: string;
+  note?: string;
+  image?: string;
+  is_public?: boolean;
 }): Promise<{ id: number }> => {
-  return post<{ id: number }>('/v1/cocktails/create', data)
-}
+  return post<{ id: number }>('/v1/cocktails/create', data);
+};
 
 /**
  * 更新自定义配方
  */
 export const updateCocktail = (data: {
-  id: number
-  name: string
+  id: number;
+  name: string;
   ingredients: Array<{
-    id: number
-    usage: string
-  }>
-  method?: string
-  garnish?: string
-  note?: string
-  image?: string
-  is_public?: boolean
+    id: number;
+    usage: string;
+  }>;
+  method?: string;
+  garnish?: string;
+  note?: string;
+  image?: string;
+  is_public?: boolean;
 }): Promise<{ id: number }> => {
-  return post<{ id: number }>('/v1/cocktails/update', data)
-}
+  return post<{ id: number }>('/v1/cocktails/update', data);
+};
 
 /**
  * 删除自定义配方
  */
-export const deleteCocktail = (data: { id: number }): Promise<{ id: number }> => {
-  return post<{ id: number }>('/v1/cocktails/delete', data)
-}
+export const deleteCocktail = (data: {
+  id: number;
+}): Promise<{ id: number }> => {
+  return post<{ id: number }>('/v1/cocktails/delete', data);
+};

@@ -7,7 +7,7 @@ import {
   RefreshControl,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -27,7 +27,10 @@ const CocktailCard: React.FC<CocktailCardProps> = ({ cocktail, onPress }) => {
   const cardColor = useThemeColor({}, 'card');
 
   return (
-    <TouchableOpacity style={[styles.card, { backgroundColor: cardColor }]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: cardColor }]}
+      onPress={onPress}
+    >
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <ThemedText type="subtitle" style={styles.cocktailName}>
@@ -39,8 +42,11 @@ const CocktailCard: React.FC<CocktailCardProps> = ({ cocktail, onPress }) => {
         </View>
 
         <View style={styles.ingredientsContainer}>
-          {cocktail.ingredients?.slice(0, 3).map((ingredient) => (
-            <View key={ingredient.id} style={[styles.ingredientTag, { backgroundColor: '#f0f0f0' }]}>
+          {cocktail.ingredients?.slice(0, 3).map(ingredient => (
+            <View
+              key={ingredient.id}
+              style={[styles.ingredientTag, { backgroundColor: '#f0f0f0' }]}
+            >
               <ThemedText style={styles.ingredientText}>
                 {ingredient.name}
               </ThemedText>
@@ -81,7 +87,8 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     queryKey: ['cocktails'],
-    queryFn: ({ pageParam = 1 }) => getCocktailsList({ page: pageParam as number, size: 10 }),
+    queryFn: ({ pageParam = 1 }) =>
+      getCocktailsList({ page: pageParam as number, size: 10 }),
     initialPageParam: 1,
     getNextPageParam: (lastPage: any, pages: any[]) => {
       if (lastPage.total > pages.length * 10) {
@@ -91,7 +98,7 @@ export default function HomeScreen() {
     },
   });
 
-  console.log("data", data);
+  console.log('data', data);
 
   // console.log("isLoading", isLoading);
 

@@ -31,10 +31,11 @@ export default function CreateCocktailScreen() {
   const [note, setNote] = useState('');
   const [isPublic, setIsPublic] = useState(true);
   const [ingredients, setIngredients] = useState<IngredientItem[]>([
-    { id: 0, name: '', usage: '' }
+    { id: 0, name: '', usage: '' },
   ]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedIngredient, setSelectedIngredient] = useState<Ingredient | null>(null);
+  const [selectedIngredient, setSelectedIngredient] =
+    useState<Ingredient | null>(null);
 
   const backgroundColor = useThemeColor({}, 'background');
   const textColor = useThemeColor({}, 'text');
@@ -42,10 +43,7 @@ export default function CreateCocktailScreen() {
   const cardColor = useThemeColor({}, 'card');
 
   // 搜索材料
-  const {
-    data: searchData,
-    isLoading: isSearching,
-  } = useQuery({
+  const { data: searchData, isLoading: isSearching } = useQuery({
     queryKey: ['searchIngredient', searchQuery],
     queryFn: () => searchIngredient({ keyword: searchQuery }),
     enabled: searchQuery.length > 0,
@@ -62,7 +60,7 @@ export default function CreateCocktailScreen() {
         },
       ]);
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
@@ -117,7 +115,7 @@ export default function CreateCocktailScreen() {
     }
 
     const validIngredients = ingredients.filter(
-      (ingredient) => ingredient.id > 0 && ingredient.usage.trim()
+      ingredient => ingredient.id > 0 && ingredient.usage.trim()
     );
 
     if (validIngredients.length === 0) {
@@ -127,7 +125,7 @@ export default function CreateCocktailScreen() {
 
     const data = {
       name: name.trim(),
-      ingredients: validIngredients.map((ingredient) => ({
+      ingredients: validIngredients.map(ingredient => ({
         id: ingredient.id,
         usage: ingredient.usage.trim(),
       })),
@@ -153,7 +151,10 @@ export default function CreateCocktailScreen() {
           创建配方
         </ThemedText>
         <TouchableOpacity
-          style={[styles.submitButton, createCocktailMutation.isPending && styles.submitButtonDisabled]}
+          style={[
+            styles.submitButton,
+            createCocktailMutation.isPending && styles.submitButtonDisabled,
+          ]}
           onPress={handleSubmit}
           disabled={createCocktailMutation.isPending}
         >
@@ -174,7 +175,10 @@ export default function CreateCocktailScreen() {
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>配方名称 *</ThemedText>
             <TextInput
-              style={[styles.input, { backgroundColor: inputColor, color: textColor }]}
+              style={[
+                styles.input,
+                { backgroundColor: inputColor, color: textColor },
+              ]}
               placeholder="例如：莫吉托"
               value={name}
               onChangeText={setName}
@@ -184,7 +188,10 @@ export default function CreateCocktailScreen() {
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>制作方法 *</ThemedText>
             <TextInput
-              style={[styles.textArea, { backgroundColor: inputColor, color: textColor }]}
+              style={[
+                styles.textArea,
+                { backgroundColor: inputColor, color: textColor },
+              ]}
               placeholder="详细描述制作步骤..."
               value={method}
               onChangeText={setMethod}
@@ -196,7 +203,10 @@ export default function CreateCocktailScreen() {
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>装饰</ThemedText>
             <TextInput
-              style={[styles.input, { backgroundColor: inputColor, color: textColor }]}
+              style={[
+                styles.input,
+                { backgroundColor: inputColor, color: textColor },
+              ]}
               placeholder="例如：薄荷叶装饰"
               value={garnish}
               onChangeText={setGarnish}
@@ -206,7 +216,10 @@ export default function CreateCocktailScreen() {
           <View style={styles.inputGroup}>
             <ThemedText style={styles.label}>备注</ThemedText>
             <TextInput
-              style={[styles.textArea, { backgroundColor: inputColor, color: textColor }]}
+              style={[
+                styles.textArea,
+                { backgroundColor: inputColor, color: textColor },
+              ]}
               placeholder="特殊说明或小贴士"
               value={note}
               onChangeText={setNote}
@@ -222,13 +235,19 @@ export default function CreateCocktailScreen() {
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               材料清单
             </ThemedText>
-            <TouchableOpacity style={styles.addButton} onPress={handleAddIngredient}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleAddIngredient}
+            >
               <ThemedText style={styles.addButtonText}>+ 添加材料</ThemedText>
             </TouchableOpacity>
           </View>
 
           {ingredients.map((ingredient, index) => (
-            <View key={index} style={[styles.ingredientRow, { backgroundColor: cardColor }]}>
+            <View
+              key={index}
+              style={[styles.ingredientRow, { backgroundColor: cardColor }]}
+            >
               <View style={styles.ingredientInfo}>
                 <TouchableOpacity
                   style={styles.ingredientSelector}
@@ -240,10 +259,13 @@ export default function CreateCocktailScreen() {
                 </TouchableOpacity>
 
                 <TextInput
-                  style={[styles.usageInput, { backgroundColor: inputColor, color: textColor }]}
+                  style={[
+                    styles.usageInput,
+                    { backgroundColor: inputColor, color: textColor },
+                  ]}
                   placeholder="用量"
                   value={ingredient.usage}
-                  onChangeText={(text) => handleUsageChange(index, text)}
+                  onChangeText={text => handleUsageChange(index, text)}
                 />
               </View>
 
@@ -264,13 +286,18 @@ export default function CreateCocktailScreen() {
               {isSearching ? (
                 <View style={styles.searchLoading}>
                   <ActivityIndicator size="small" color="#007AFF" />
-                  <ThemedText style={styles.searchLoadingText}>搜索中...</ThemedText>
+                  <ThemedText style={styles.searchLoadingText}>
+                    搜索中...
+                  </ThemedText>
                 </View>
               ) : (
-                searchResults.map((ingredient) => (
+                searchResults.map(ingredient => (
                   <TouchableOpacity
                     key={ingredient.id}
-                    style={[styles.searchResultItem, { backgroundColor: cardColor }]}
+                    style={[
+                      styles.searchResultItem,
+                      { backgroundColor: cardColor },
+                    ]}
                     onPress={() => handleSelectIngredient(ingredient)}
                   >
                     <ThemedText style={styles.searchResultName}>

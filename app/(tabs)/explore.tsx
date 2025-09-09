@@ -8,14 +8,17 @@ import {
   StyleSheet,
   Switch,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import { getUserCocktailsList } from '../../api/user-cocktails';
-import { getUserIngredientsList, removeIngredient } from '../../api/user-ingredients';
+import {
+  getUserIngredientsList,
+  removeIngredient,
+} from '../../api/user-ingredients';
 import { useAuthStore } from '../../store/auth';
 import { Cocktail } from '../../types/cocktails';
 import { Ingredient } from '../../types/ingredient';
@@ -29,7 +32,10 @@ const CocktailCard: React.FC<CocktailCardProps> = ({ cocktail, onPress }) => {
   const cardColor = useThemeColor({}, 'card');
 
   return (
-    <TouchableOpacity style={[styles.card, { backgroundColor: cardColor }]} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.card, { backgroundColor: cardColor }]}
+      onPress={onPress}
+    >
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <ThemedText type="subtitle" style={styles.cocktailName}>
@@ -41,8 +47,11 @@ const CocktailCard: React.FC<CocktailCardProps> = ({ cocktail, onPress }) => {
         </View>
 
         <View style={styles.ingredientsContainer}>
-          {cocktail.ingredients?.slice(0, 3).map((ingredient) => (
-            <View key={ingredient.id} style={[styles.ingredientTag, { backgroundColor: '#f0f0f0' }]}>
+          {cocktail.ingredients?.slice(0, 3).map(ingredient => (
+            <View
+              key={ingredient.id}
+              style={[styles.ingredientTag, { backgroundColor: '#f0f0f0' }]}
+            >
               <ThemedText style={styles.ingredientText}>
                 {ingredient.name}
               </ThemedText>
@@ -73,7 +82,10 @@ interface IngredientCardProps {
   onRemove: () => void;
 }
 
-const IngredientCard: React.FC<IngredientCardProps> = ({ ingredient, onRemove }) => {
+const IngredientCard: React.FC<IngredientCardProps> = ({
+  ingredient,
+  onRemove,
+}) => {
   const cardColor = useThemeColor({}, 'card');
 
   return (
@@ -110,11 +122,12 @@ export default function ExploreScreen() {
     refetch: refetchCocktails,
   } = useInfiniteQuery({
     queryKey: ['userCocktails', showMakeableOnly],
-    queryFn: ({ pageParam = 1 }) => getUserCocktailsList({
-      page: pageParam as number,
-      size: 10,
-      is_makeable: showMakeableOnly
-    }),
+    queryFn: ({ pageParam = 1 }) =>
+      getUserCocktailsList({
+        page: pageParam as number,
+        size: 10,
+        is_makeable: showMakeableOnly,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage: any, pages: any[]) => {
       if (lastPage.total > pages.length * 10) {
@@ -131,7 +144,8 @@ export default function ExploreScreen() {
     refetch: refetchIngredients,
   } = useInfiniteQuery({
     queryKey: ['userIngredients'],
-    queryFn: ({ pageParam = 1 }) => getUserIngredientsList({ page: pageParam as number, size: 20 }),
+    queryFn: ({ pageParam = 1 }) =>
+      getUserIngredientsList({ page: pageParam as number, size: 20 }),
     initialPageParam: 1,
     getNextPageParam: (lastPage: any, pages: any[]) => {
       if (lastPage.total > pages.length * 20) {
@@ -148,27 +162,23 @@ export default function ExploreScreen() {
       Alert.alert('成功', '材料删除成功');
       refetchIngredients();
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
 
   const handleLogout = () => {
-    Alert.alert(
-      '确认退出',
-      '确定要退出登录吗？',
-      [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '确定',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            router.replace('/login');
-          },
+    Alert.alert('确认退出', '确定要退出登录吗？', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '确定',
+        style: 'destructive',
+        onPress: () => {
+          logout();
+          router.replace('/login');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleCocktailPress = (cocktail: Cocktail) => {
@@ -176,25 +186,19 @@ export default function ExploreScreen() {
   };
 
   const handleRemoveIngredient = (ingredient: Ingredient) => {
-    Alert.alert(
-      '确认删除',
-      `确定要删除材料"${ingredient.name}"吗？`,
-      [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '确定',
-          style: 'destructive',
-          onPress: () => removeIngredientMutation.mutate({ ingredient_id: ingredient.id }),
-        },
-      ]
-    );
+    Alert.alert('确认删除', `确定要删除材料"${ingredient.name}"吗？`, [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '确定',
+        style: 'destructive',
+        onPress: () =>
+          removeIngredientMutation.mutate({ ingredient_id: ingredient.id }),
+      },
+    ]);
   };
 
   const renderCocktail = ({ item }: { item: Cocktail }) => (
-    <CocktailCard
-      cocktail={item}
-      onPress={() => handleCocktailPress(item)}
-    />
+    <CocktailCard cocktail={item} onPress={() => handleCocktailPress(item)} />
   );
 
   const renderIngredient = ({ item }: { item: Ingredient }) => (
@@ -204,8 +208,10 @@ export default function ExploreScreen() {
     />
   );
 
-  const cocktails = cocktailsData?.pages.flatMap((page: any) => page.list) || [];
-  const ingredients = ingredientsData?.pages.flatMap((page: any) => page.list) || [];
+  const cocktails =
+    cocktailsData?.pages.flatMap((page: any) => page.list) || [];
+  const ingredients =
+    ingredientsData?.pages.flatMap((page: any) => page.list) || [];
 
   return (
     <ThemedView style={styles.container}>
@@ -259,7 +265,10 @@ export default function ExploreScreen() {
               <ThemedText style={styles.errorText}>
                 加载失败: {cocktailsErrorMsg?.message}
               </ThemedText>
-              <TouchableOpacity style={styles.retryButton} onPress={() => refetchCocktails()}>
+              <TouchableOpacity
+                style={styles.retryButton}
+                onPress={() => refetchCocktails()}
+              >
                 <ThemedText style={styles.retryButtonText}>重试</ThemedText>
               </TouchableOpacity>
             </View>
@@ -267,7 +276,7 @@ export default function ExploreScreen() {
             <FlatList
               data={cocktails}
               renderItem={renderCocktail}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={item => item.id.toString()}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.horizontalList}
@@ -298,7 +307,7 @@ export default function ExploreScreen() {
             <FlatList
               data={ingredients}
               renderItem={renderIngredient}
-              keyExtractor={(item) => item.id.toString()}
+              keyExtractor={item => item.id.toString()}
               numColumns={2}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.ingredientsGrid}

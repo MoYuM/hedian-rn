@@ -8,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  View
+  View,
 } from 'react-native';
 
 import { ThemedText } from '@/components/ThemedText';
@@ -31,7 +31,8 @@ export default function CocktailDetailScreen() {
     error,
   } = useInfiniteQuery({
     queryKey: ['cocktails'],
-    queryFn: ({ pageParam = 1 }) => getCocktailsList({ page: pageParam as number, size: 100 }),
+    queryFn: ({ pageParam = 1 }) =>
+      getCocktailsList({ page: pageParam as number, size: 100 }),
     initialPageParam: 1,
     getNextPageParam: (lastPage: any, pages: any[]) => {
       if (lastPage.total > pages.length * 100) {
@@ -47,7 +48,7 @@ export default function CocktailDetailScreen() {
     onSuccess: () => {
       Alert.alert('成功', '已添加到我的收藏');
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
@@ -57,7 +58,7 @@ export default function CocktailDetailScreen() {
     onSuccess: () => {
       Alert.alert('成功', '已从收藏中移除');
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
@@ -112,7 +113,9 @@ export default function CocktailDetailScreen() {
         {/* 头部图片 */}
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: cocktail.image || 'https://via.placeholder.com/400x300' }}
+            source={{
+              uri: cocktail.image || 'https://via.placeholder.com/400x300',
+            }}
             style={styles.cocktailImage}
             resizeMode="cover"
           />
@@ -134,7 +137,9 @@ export default function CocktailDetailScreen() {
 
             <View style={styles.metaInfo}>
               <View style={styles.starContainer}>
-                <ThemedText style={styles.starText}>⭐ {cocktail.star}</ThemedText>
+                <ThemedText style={styles.starText}>
+                  ⭐ {cocktail.star}
+                </ThemedText>
               </View>
               <ThemedText style={styles.authorText}>
                 作者: {cocktail.author_name}
@@ -166,9 +171,7 @@ export default function CocktailDetailScreen() {
             <ThemedText type="subtitle" style={styles.sectionTitle}>
               制作方法
             </ThemedText>
-            <ThemedText style={styles.methodText}>
-              {cocktail.method}
-            </ThemedText>
+            <ThemedText style={styles.methodText}>{cocktail.method}</ThemedText>
           </View>
 
           {/* 装饰 */}
@@ -189,9 +192,7 @@ export default function CocktailDetailScreen() {
               <ThemedText type="subtitle" style={styles.sectionTitle}>
                 备注
               </ThemedText>
-              <ThemedText style={styles.noteText}>
-                {cocktail.note}
-              </ThemedText>
+              <ThemedText style={styles.noteText}>{cocktail.note}</ThemedText>
             </View>
           )}
 
@@ -214,10 +215,12 @@ export default function CocktailDetailScreen() {
         <TouchableOpacity
           style={[
             styles.favoriteButton,
-            { backgroundColor: cocktail.is_star ? '#ff6b6b' : '#007AFF' }
+            { backgroundColor: cocktail.is_star ? '#ff6b6b' : '#007AFF' },
           ]}
           onPress={handleToggleFavorite}
-          disabled={addCocktailMutation.isPending || removeCocktailMutation.isPending}
+          disabled={
+            addCocktailMutation.isPending || removeCocktailMutation.isPending
+          }
         >
           <ThemedText style={styles.favoriteButtonText}>
             {cocktail.is_star ? '❤️ 已收藏' : '🤍 收藏'}

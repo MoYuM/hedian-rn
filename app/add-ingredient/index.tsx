@@ -24,15 +24,17 @@ interface IngredientItemProps {
   isAdding?: boolean;
 }
 
-const IngredientItem: React.FC<IngredientItemProps> = ({ ingredient, onAdd, isAdding }) => {
+const IngredientItem: React.FC<IngredientItemProps> = ({
+  ingredient,
+  onAdd,
+  isAdding,
+}) => {
   const cardColor = useThemeColor({}, 'card');
 
   return (
     <View style={[styles.ingredientItem, { backgroundColor: cardColor }]}>
       <View style={styles.ingredientInfo}>
-        <ThemedText style={styles.ingredientName}>
-          {ingredient.name}
-        </ThemedText>
+        <ThemedText style={styles.ingredientName}>{ingredient.name}</ThemedText>
         {ingredient.en_name && (
           <ThemedText style={styles.ingredientEnName}>
             {ingredient.en_name}
@@ -82,7 +84,7 @@ export default function AddIngredientScreen() {
     onSuccess: () => {
       Alert.alert('成功', '材料添加成功');
     },
-    onError: (error) => {
+    onError: error => {
       Alert.alert('错误', error.message);
     },
   });
@@ -123,7 +125,7 @@ export default function AddIngredientScreen() {
               backgroundColor: inputColor,
               color: textColor,
               borderColor: inputColor,
-            }
+            },
           ]}
           placeholder="搜索材料名称..."
           placeholderTextColor={textColor === '#000' ? '#999' : '#666'}
@@ -162,7 +164,7 @@ export default function AddIngredientScreen() {
                 isAdding={addIngredientMutation.isPending}
               />
             )}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={item => item.id.toString()}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContainer}
           />
