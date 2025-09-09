@@ -35,6 +35,7 @@ yarn-error.*
 # Package files
 package-lock.json
 yarn.lock
+pnpm-lock.yaml
 
 # Generated files
 expo-env.d.ts
