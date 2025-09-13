@@ -1,4 +1,3 @@
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { StyleSheet } from 'react-native';
 
@@ -14,6 +13,8 @@ export default function BlurTabBarBackground() {
   );
 }
 
+// 移除对React Navigation的依赖，使用固定值或自定义hook
 export function useBottomTabOverflow() {
-  return useBottomTabBarHeight();
+  // 返回一个合理的默认值，或者您可以根据需要实现自定义逻辑
+  return 0;
 }

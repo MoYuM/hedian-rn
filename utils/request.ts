@@ -3,9 +3,11 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 // 创建axios实例
 const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({
-    baseURL: '/api',
+    baseURL: 'http://localhost:8001',
     timeout: 10000,
-    withCredentials: true,
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
 
   // 请求拦截器
