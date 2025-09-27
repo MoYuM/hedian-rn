@@ -1,4 +1,4 @@
-import { useLogto, IdTokenClaims } from '@logto/rn';
+import { IdTokenClaims, useLogto } from '@logto/rn';
 import { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,11 +22,10 @@ export default function MineScreen() {
       <Text>欢迎回来，{user?.email}</Text>
 
       {isAuthenticated ? (
-        <Button title="Sign out" onPress={async () => signOut()} />
+        <Button title="登出" onPress={async () => signOut()} />
       ) : (
-        // Replace the redirect URI with your own
         <Button
-          title="Sign in"
+          title="登录"
           onPress={async () => signIn('http://localhost:8081/mine')}
         />
       )}

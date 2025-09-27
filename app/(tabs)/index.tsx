@@ -1,19 +1,13 @@
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 export default function HomeScreen() {
   return (
-    <ThemedView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
-        <ThemedText type="title" style={styles.title}>
-          🍺 喝点
-        </ThemedText>
-        <ThemedText style={styles.subtitle}>
-          发现精彩配方，创造属于你的鸡尾酒
-        </ThemedText>
+        <Text style={styles.title}>🍺 喝点</Text>
+        <Text style={styles.subtitle}>发现精彩配方，创造属于你的鸡尾酒</Text>
       </View>
-    </ThemedView>
+    </View>
   );
 }
 
