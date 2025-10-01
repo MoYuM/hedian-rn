@@ -22,12 +22,17 @@ export default function MineScreen() {
     });
   }, [isAuthenticated, getIdTokenClaims]);
 
+  const handleLogout = () => {
+    signOut();
+    setUser(null);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text>欢迎回来，{user?.email}</Text>
 
       {isAuthenticated ? (
-        <Button title="登出" onPress={async () => signOut()} />
+        <Button title="登出" onPress={async () => handleLogout()} />
       ) : (
         <Button title="登录" onPress={async () => signIn(callbackUrl)} />
       )}
