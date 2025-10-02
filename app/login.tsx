@@ -1,7 +1,10 @@
+import { login } from '@/api/auth';
+import { JWT_TOKEN_KEY } from '@/constants/auth';
+import { LoginRequest, LoginResponse } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMutation } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
@@ -24,19 +27,10 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-interface User {
-  username: string;
-  email: string;
-}
-
-const USER_STORAGE_KEY = 'user_data';
-
 /**
  * 登录页面
  */
 export default function LoginScreen() {
-  const [isLoading, setIsLoading] = useState(false);
-
   const {
     control,
     handleSubmit,
@@ -49,33 +43,24 @@ export default function LoginScreen() {
     },
   });
 
+  const { mutate: loginMutation, isPending } = useMutation<
+    LoginResponse,
+    Error,
+    LoginRequest
+  >({
+    mutationFn: login,
+    retry: false,
+    onSuccess: data => {
+      AsyncStorage.setItem(JWT_TOKEN_KEY, data.token);
+      router.replace('/(tabs)');
+    },
+    onError: error => {
+      Alert.alert('登录失败', error.message);
+    },
+  });
+
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true);
-
-    try {
-      // 模拟登录请求
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // 简单的验证逻辑（实际项目中应该调用API）
-      if (data.username === 'admin' && data.password === '123456') {
-        // 登录成功，保存用户数据
-        const userData: User = {
-          username: data.username,
-          email: `${data.username}@example.com`,
-        };
-
-        await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(userData));
-
-        // 跳转到主页面
-        router.replace('/(tabs)');
-      } else {
-        Alert.alert('登录失败', '用户名或密码错误');
-      }
-    } catch {
-      Alert.alert('登录失败', '网络错误，请重试');
-    } finally {
-      setIsLoading(false);
-    }
+    loginMutation(data);
   };
 
   const handleRegister = () => {
@@ -141,13 +126,13 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={[
                 styles.loginButton,
-                isLoading && styles.loginButtonDisabled,
+                isPending && styles.loginButtonDisabled,
               ]}
               onPress={handleSubmit(onSubmit)}
-              disabled={isLoading}
+              disabled={isPending}
             >
               <Text style={styles.loginButtonText}>
-                {isLoading ? '登录中...' : '登录'}
+                {isPending ? '登录中...' : '登录'}
               </Text>
             </TouchableOpacity>
 

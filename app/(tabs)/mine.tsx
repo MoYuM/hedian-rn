@@ -1,54 +1,45 @@
+import { getUserInfo, GetUserInfoResponse } from '@/api/users';
+import { JWT_TOKEN_KEY } from '@/constants/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
 import { Button, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-interface User {
-  username: string;
-  email: string;
-}
-
-const USER_STORAGE_KEY = 'user_data';
 
 /**
  * 我的页面
  */
 export default function MineScreen() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    loadUserData();
-  }, []);
-
-  const loadUserData = async () => {
-    try {
-      const userData = await AsyncStorage.getItem(USER_STORAGE_KEY);
-      if (userData) {
-        setUser(JSON.parse(userData));
-      }
-    } catch (error) {
-      console.error('加载用户数据失败:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    data: userInfo,
+    isPending,
+    refetch,
+  } = useQuery<GetUserInfoResponse>({
+    queryKey: ['userInfo'],
+    queryFn: getUserInfo,
+    retry: false,
+    staleTime: 5 * 60 * 1000, // 5分钟
+    refetchOnWindowFocus: false,
+  });
 
   const handleLogin = () => {
     router.push('/login' as any);
   };
 
   const handleLogout = async () => {
-    try {
-      await AsyncStorage.removeItem(USER_STORAGE_KEY);
-      setUser(null);
-    } catch (error) {
-      console.error('登出失败:', error);
-    }
+    // 清空 JWT token
+    await AsyncStorage.removeItem(JWT_TOKEN_KEY);
+
+    // 清空所有 useQuery 缓存
+    queryClient.clear();
+
+    // 可选：重新获取用户信息（这会返回未登录状态）
+    refetch();
   };
 
-  if (isLoading) {
+  if (isPending) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.loadingContainer}>
@@ -61,10 +52,11 @@ export default function MineScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {user ? (
+        {userInfo ? (
           <View style={styles.userInfo}>
-            <Text style={styles.welcomeText}>欢迎回来，{user.username}</Text>
-            <Text style={styles.emailText}>{user.email}</Text>
+            <Text style={styles.welcomeText}>
+              欢迎回来，{userInfo.username}
+            </Text>
             <Button title="登出" onPress={handleLogout} />
           </View>
         ) : (

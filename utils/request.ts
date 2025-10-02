@@ -1,4 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { JWT_TOKEN_KEY } from '@/constants/auth';
 
 // 创建axios实例
 const createAxiosInstance = (): AxiosInstance => {
@@ -12,7 +14,11 @@ const createAxiosInstance = (): AxiosInstance => {
 
   // 请求拦截器
   instance.interceptors.request.use(
-    config => {
+    async config => {
+      const token = await AsyncStorage.getItem(JWT_TOKEN_KEY);
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
       return config;
     },
     error => {

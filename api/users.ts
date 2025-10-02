@@ -1,9 +1,10 @@
-import { LoginRequest, LoginResponse, RegisterRequest } from '../types/user';
 import { post } from '../utils/request';
+
+export type GetUserInfoResponse = { username: string };
 
 /**
  * 获取用户信息
  */
-export const getUserInfo = (): Promise<{ username: string }> => {
-  return post<{ username: string }>('/v1/users/info');
+export const getUserInfo = (): Promise<GetUserInfoResponse> => {
+  return post<GetUserInfoResponse>('/v1/users/info');
 };
