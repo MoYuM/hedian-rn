@@ -2,13 +2,14 @@ import { PaginatedResponse, PaginationParams } from '../types/api';
 import { Cocktail } from '../types/cocktails';
 import { post } from '../utils/request';
 
+export type GetCocktailsListResponse = PaginatedResponse<Cocktail>;
+export type GetCocktailsListParams = PaginationParams;
+
 /**
  * 获取鸡尾酒列表
  */
-export const getCocktailsList = (
-  params: PaginationParams
-): Promise<PaginatedResponse<Cocktail>> => {
-  return post<PaginatedResponse<Cocktail>>('/v1/cocktails/getList', params);
+export const getCocktailsList = (params: GetCocktailsListParams) => {
+  return post<GetCocktailsListResponse>('/v1/cocktails/getList', params);
 };
 
 /**
