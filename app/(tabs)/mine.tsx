@@ -159,7 +159,7 @@ export default function MineScreen() {
           <FlatList
             data={allIngredients}
             renderItem={renderIngredientCard}
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={item => `${item.id}-${item.name}`}
             contentContainerStyle={styles.ingredientsList}
             refreshControl={
               <RefreshControl
