@@ -5,9 +5,7 @@ import { post } from '../utils/request';
 /**
  * 获取用户库存材料
  */
-export const getUserIngredientsList = (
-  params: PaginationParams
-): Promise<PaginatedResponse<Ingredient>> => {
+export const getUserIngredientsList = (params: PaginationParams) => {
   return post<PaginatedResponse<Ingredient>>(
     '/v1/userIngredients/getIngredientsList',
     params

@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
   cocktailsList: {
     padding: 20,
-    paddingBottom: 100,
+    // paddingBottom: 100,
   },
   cocktailCard: {
     backgroundColor: '#fff',
