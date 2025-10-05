@@ -1,7 +1,6 @@
 import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   FlatList,
@@ -17,7 +16,6 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
 
@@ -30,7 +28,7 @@ export default function HomeScreen() {
     isFetchingNextPage,
     isPending,
   } = useInfiniteQuery({
-    queryKey: ['cocktailList', searchText, selectedCategory],
+    queryKey: ['cocktailList', selectedCategory],
     queryFn: ({ pageParam }) => {
       const params: GetCocktailsListParams = {
         page: pageParam,
@@ -50,10 +48,6 @@ export default function HomeScreen() {
     { id: 'all', name: '全部' },
     { id: 'is_makeable', name: '可制作' },
   ];
-
-  const handleLogin = () => {
-    router.push('/login' as any);
-  };
 
   const handleRefresh = async () => {
     setRefreshing(true);

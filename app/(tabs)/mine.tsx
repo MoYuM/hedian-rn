@@ -17,7 +17,6 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -28,7 +27,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
  */
 export default function MineScreen() {
   const queryClient = useQueryClient();
-  const [searchText, setSearchText] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
   const {
@@ -50,12 +48,11 @@ export default function MineScreen() {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteQuery({
-    queryKey: ['userIngredients', searchText],
+    queryKey: ['userIngredients'],
     queryFn: ({ pageParam }) =>
       getUserIngredientsList({
         page: pageParam,
         size: 10,
-        search: searchText || undefined,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, pages) =>
@@ -142,17 +139,6 @@ export default function MineScreen() {
               欢迎回来，{userInfo.username}
             </Text>
             <Button title="登出" onPress={handleLogout} />
-          </View>
-
-          {/* 搜索栏 */}
-          <View style={styles.searchContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="搜索材料..."
-              value={searchText}
-              onChangeText={setSearchText}
-              placeholderTextColor="#999"
-            />
           </View>
 
           {/* 材料列表 */}
@@ -253,21 +239,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#666',
     marginBottom: 20,
-  },
-  searchContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  searchInput: {
-    height: 44,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 22,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
   },
   ingredientsList: {
     padding: 20,

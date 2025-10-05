@@ -18,6 +18,15 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="search"
+        options={{
+          title: '搜索',
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} color={color} name="menubar.home" />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="mine"
         options={{
           title: '我的',

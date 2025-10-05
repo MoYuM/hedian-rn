@@ -52,6 +52,11 @@ export function IconSymbol({
   weight?: SymbolWeight;
 }) {
   const mapping = MAPPING[name];
+
+  if (!mapping) {
+    return <Text>Icon not found</Text>;
+  }
+
   const IconComponent = ICON_COMPONENTS[mapping.family];
 
   if (!IconComponent || !mapping) {
