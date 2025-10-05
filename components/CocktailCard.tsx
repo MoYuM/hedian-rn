@@ -1,15 +1,10 @@
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage';
+import { Cocktail } from '@/types/cocktails';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IconSymbol } from './ui/IconSymbol';
 
 interface CocktailCardProps {
-  cocktail: {
-    id: string | number;
-    name: string;
-    image?: string;
-    star: number;
-    method: string;
-  };
+  cocktail: Cocktail;
   onPress?: () => void;
 }
 
@@ -22,10 +17,10 @@ export function CocktailCard({ cocktail, onPress }: CocktailCardProps) {
         <PlaceholderImage width="100%" height={160} text="🍹" />
       )}
       <View style={styles.cocktailInfo}>
-        <Text style={styles.cocktailName} numberOfLines={2}>
-          {cocktail.name}
-        </Text>
-        <View style={styles.cocktailMeta}>
+        <View style={styles.nameAndStarContainer}>
+          <Text style={styles.cocktailName} numberOfLines={2}>
+            {cocktail.name}
+          </Text>
           <View style={styles.starContainer}>
             <Text style={styles.starIcon}>
               <IconSymbol
@@ -37,9 +32,28 @@ export function CocktailCard({ cocktail, onPress }: CocktailCardProps) {
             <Text style={styles.starCount}>{cocktail.star}</Text>
           </View>
         </View>
-        <Text style={styles.cocktailMethod} numberOfLines={3}>
-          {cocktail.method}
-        </Text>
+        <View style={styles.ingredientsContainer}>
+          {cocktail.ingredients && cocktail.ingredients.length > 0 ? (
+            cocktail.ingredients.slice(0, 3).map((ingredient, index) => (
+              <View key={index} style={styles.ingredientTag}>
+                <Text style={styles.ingredientText} numberOfLines={1}>
+                  {ingredient.name}
+                </Text>
+              </View>
+            ))
+          ) : (
+            <View style={styles.ingredientTag}>
+              <Text style={styles.ingredientText}>暂无材料</Text>
+            </View>
+          )}
+          {cocktail.ingredients && cocktail.ingredients.length > 3 && (
+            <View style={styles.ingredientTag}>
+              <Text style={styles.ingredientText}>
+                +{cocktail.ingredients.length - 3}
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -69,21 +83,25 @@ const styles = StyleSheet.create({
   cocktailInfo: {
     padding: 12,
   },
-  cocktailName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  cocktailMeta: {
+  nameAndStarContainer: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     marginBottom: 8,
+  },
+  cocktailName: {
+    fontSize: 14,
+    fontWeight: 'normal',
+    color: '#000',
+    flex: 1,
+    marginRight: 12,
+    lineHeight: 20, // 调整行高以匹配新的字体大小
   },
   starContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0, // 防止被压缩
+    paddingTop: 2, // 稍微向下偏移，与文字基线对齐
   },
   starIcon: {
     fontSize: 14,
@@ -94,9 +112,22 @@ const styles = StyleSheet.create({
     color: '#666',
     fontWeight: '500',
   },
-  cocktailMethod: {
-    fontSize: 12,
+  ingredientsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  ingredientTag: {
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+  },
+  ingredientText: {
+    fontSize: 11,
     color: '#666',
-    lineHeight: 16,
+    fontWeight: '500',
   },
 });
