@@ -1,17 +1,13 @@
+import { getUserCocktailsList } from '@/api/user-cocktails';
 import { getUserIngredientsList } from '@/api/user-ingredients';
 import { getUserInfo, GetUserInfoResponse } from '@/api/users';
-import { JWT_TOKEN_KEY } from '@/constants/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  useInfiniteQuery,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   Button,
   FlatList,
+  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   RefreshControl,
@@ -22,18 +18,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+// 筛选器类型
+type FilterType = 'ingredients' | 'cocktails' | 'stars';
+
 /**
  * 我的页面
  */
 export default function MineScreen() {
-  const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('ingredients');
 
-  const {
-    data: userInfo,
-    isPending,
-    refetch,
-  } = useQuery<GetUserInfoResponse>({
+  const { data: userInfo, isPending } = useQuery<GetUserInfoResponse>({
     queryKey: ['userInfo'],
     queryFn: getUserInfo,
     retry: false,
@@ -44,9 +39,9 @@ export default function MineScreen() {
   const {
     data: ingredients,
     refetch: refetchIngredients,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
+    fetchNextPage: fetchNextIngredients,
+    hasNextPage: hasNextIngredients,
+    isFetchingNextPage: isFetchingNextIngredients,
   } = useInfiniteQuery({
     queryKey: ['userIngredients'],
     queryFn: ({ pageParam }) =>
@@ -57,30 +52,101 @@ export default function MineScreen() {
     initialPageParam: 1,
     getNextPageParam: (lastPage, pages) =>
       lastPage.total > pages.length * 10 ? pages.length + 1 : undefined,
-    enabled: !!userInfo, // 只有登录后才查询材料列表
+    enabled: !!userInfo && activeFilter === 'ingredients', // 只有登录后且选中材料时才查询
+  });
+
+  const {
+    data: cocktails,
+    refetch: refetchCocktails,
+    fetchNextPage: fetchNextCocktails,
+    hasNextPage: hasNextCocktails,
+    isFetchingNextPage: isFetchingNextCocktails,
+  } = useInfiniteQuery({
+    queryKey: ['userCocktails'],
+    queryFn: ({ pageParam }) =>
+      getUserCocktailsList({
+        page: pageParam,
+        size: 10,
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.total > pages.length * 10 ? pages.length + 1 : undefined,
+    enabled: !!userInfo && activeFilter === 'cocktails', // 只有登录后且选中配方时才查询
+  });
+
+  const {
+    data: starredCocktails,
+    refetch: refetchStarredCocktails,
+    fetchNextPage: fetchNextStarredCocktails,
+    hasNextPage: hasNextStarredCocktails,
+    isFetchingNextPage: isFetchingNextStarredCocktails,
+  } = useInfiniteQuery({
+    queryKey: ['starredCocktails'],
+    queryFn: ({ pageParam }) =>
+      getUserCocktailsList({
+        page: pageParam,
+        size: 10,
+        is_star: true, // 只获取star的配方
+      }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.total > pages.length * 10 ? pages.length + 1 : undefined,
+    enabled: !!userInfo && activeFilter === 'stars', // 只有登录后且选中star时才查询
   });
 
   const handleLogin = () => {
     router.push('/login' as any);
   };
 
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem(JWT_TOKEN_KEY);
-    queryClient.clear();
-    refetch();
-  };
-
   const handleRefresh = async () => {
     setRefreshing(true);
-    await refetchIngredients();
+    switch (activeFilter) {
+      case 'ingredients':
+        await refetchIngredients();
+        break;
+      case 'cocktails':
+        await refetchCocktails();
+        break;
+      case 'stars':
+        await refetchStarredCocktails();
+        break;
+    }
     setRefreshing(false);
   };
 
   const handleLoadMore = useCallback(() => {
-    if (hasNextPage && !isFetchingNextPage && !refreshing) {
-      fetchNextPage();
+    if (refreshing) return;
+
+    switch (activeFilter) {
+      case 'ingredients':
+        if (hasNextIngredients && !isFetchingNextIngredients) {
+          fetchNextIngredients();
+        }
+        break;
+      case 'cocktails':
+        if (hasNextCocktails && !isFetchingNextCocktails) {
+          fetchNextCocktails();
+        }
+        break;
+      case 'stars':
+        if (hasNextStarredCocktails && !isFetchingNextStarredCocktails) {
+          fetchNextStarredCocktails();
+        }
+        break;
     }
-  }, [hasNextPage, isFetchingNextPage, refreshing, fetchNextPage]);
+  }, [
+    activeFilter,
+    hasNextIngredients,
+    isFetchingNextIngredients,
+    fetchNextIngredients,
+    hasNextCocktails,
+    isFetchingNextCocktails,
+    fetchNextCocktails,
+    hasNextStarredCocktails,
+    isFetchingNextStarredCocktails,
+    fetchNextStarredCocktails,
+    refreshing,
+  ]);
 
   const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -89,16 +155,11 @@ export default function MineScreen() {
       const isCloseToBottom =
         contentOffset.y + layoutMeasurement.height >= contentSize.height * 0.7;
 
-      if (
-        isCloseToBottom &&
-        hasNextPage &&
-        !isFetchingNextPage &&
-        !refreshing
-      ) {
-        fetchNextPage();
+      if (isCloseToBottom && !refreshing) {
+        handleLoadMore();
       }
     },
-    [hasNextPage, isFetchingNextPage, refreshing, fetchNextPage]
+    [handleLoadMore, refreshing]
   );
 
   const renderIngredientCard = ({ item: ingredient }: { item: any }) => (
@@ -116,6 +177,26 @@ export default function MineScreen() {
     </TouchableOpacity>
   );
 
+  const renderCocktailCard = ({ item: cocktail }: { item: any }) => (
+    <TouchableOpacity style={styles.cocktailCard}>
+      <View style={styles.cocktailInfo}>
+        <Text style={styles.cocktailName}>{cocktail.name}</Text>
+        <Text style={styles.cocktailEnName}>{cocktail.en_name}</Text>
+        <Text style={styles.cocktailDescription} numberOfLines={2}>
+          {cocktail.history || cocktail.note}
+        </Text>
+        <View style={styles.cocktailMeta}>
+          <Text style={styles.cocktailAuthor}>
+            作者: {cocktail.author_name}
+          </Text>
+          <View style={styles.cocktailStats}>
+            <Text style={styles.cocktailStar}>⭐ {cocktail.star}</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   if (isPending) {
     return (
       <SafeAreaView style={styles.container}>
@@ -126,27 +207,135 @@ export default function MineScreen() {
     );
   }
 
-  // 将所有页面的材料数据合并成一个数组
-  const allIngredients = ingredients?.pages.flatMap(page => page.list) || [];
+  // 获取当前筛选器对应的数据
+  const getCurrentData = () => {
+    switch (activeFilter) {
+      case 'ingredients':
+        return ingredients?.pages.flatMap(page => page.list) || [];
+      case 'cocktails':
+        return cocktails?.pages.flatMap(page => page.list) || [];
+      case 'stars':
+        return starredCocktails?.pages.flatMap(page => page.list) || [];
+      default:
+        return [];
+    }
+  };
+
+  const getCurrentLoadingState = () => {
+    switch (activeFilter) {
+      case 'ingredients':
+        return isFetchingNextIngredients;
+      case 'cocktails':
+        return isFetchingNextCocktails;
+      case 'stars':
+        return isFetchingNextStarredCocktails;
+      default:
+        return false;
+    }
+  };
+
+  const getCurrentHasNextPage = () => {
+    switch (activeFilter) {
+      case 'ingredients':
+        return hasNextIngredients;
+      case 'cocktails':
+        return hasNextCocktails;
+      case 'stars':
+        return hasNextStarredCocktails;
+      default:
+        return false;
+    }
+  };
+
+  const getCurrentRenderItem = () => {
+    switch (activeFilter) {
+      case 'ingredients':
+        return renderIngredientCard;
+      case 'cocktails':
+      case 'stars':
+        return renderCocktailCard;
+      default:
+        return renderIngredientCard;
+    }
+  };
+
+  const currentData = getCurrentData();
+  const isFetchingNext = getCurrentLoadingState();
+  const hasNextPage = getCurrentHasNextPage();
+  const renderItem = getCurrentRenderItem();
 
   return (
     <SafeAreaView style={styles.container}>
       {userInfo ? (
         <View style={styles.content}>
-          {/* 用户信息头部 */}
-          <View style={styles.userHeader}>
-            <Text style={styles.welcomeText}>
-              欢迎回来，{userInfo.username}
-            </Text>
-            <Button title="登出" onPress={handleLogout} />
+          {/* 头部区域 - 用户头像 + 筛选器 */}
+          <View style={styles.headerContainer}>
+            <Image
+              style={styles.avatar}
+              source={{
+                uri: 'https://s1.aigei.com/prevfiles/9f7f85b3b9384d9baf5d679ef2296eb8.jpg?e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:Uo38WTfJnBXieqNx2CRXM72JTlk=',
+              }}
+            />
+            <View style={styles.filterContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.filterButton,
+                  activeFilter === 'ingredients' && styles.filterButtonActive,
+                ]}
+                onPress={() => setActiveFilter('ingredients')}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    activeFilter === 'ingredients' &&
+                      styles.filterButtonTextActive,
+                  ]}
+                >
+                  我的材料
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.filterButton,
+                  activeFilter === 'cocktails' && styles.filterButtonActive,
+                ]}
+                onPress={() => setActiveFilter('cocktails')}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    activeFilter === 'cocktails' &&
+                      styles.filterButtonTextActive,
+                  ]}
+                >
+                  我的配方
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.filterButton,
+                  activeFilter === 'stars' && styles.filterButtonActive,
+                ]}
+                onPress={() => setActiveFilter('stars')}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    activeFilter === 'stars' && styles.filterButtonTextActive,
+                  ]}
+                >
+                  我的 Star
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
-          {/* 材料列表 */}
+          {/* 列表 */}
           <FlatList
-            data={allIngredients}
-            renderItem={renderIngredientCard}
+            data={currentData}
+            renderItem={renderItem}
             keyExtractor={item => `${item.id}-${item.name}`}
-            contentContainerStyle={styles.ingredientsList}
+            contentContainerStyle={styles.listContainer}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
@@ -160,7 +349,7 @@ export default function MineScreen() {
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.3}
             ListFooterComponent={() => {
-              if (isFetchingNextPage) {
+              if (isFetchingNext) {
                 return (
                   <View style={styles.loadingMore}>
                     <Text style={styles.loadingMoreText}>加载更多...</Text>
@@ -168,7 +357,7 @@ export default function MineScreen() {
                 );
               }
 
-              if (!hasNextPage && allIngredients.length > 0) {
+              if (!hasNextPage && currentData.length > 0) {
                 return (
                   <View style={styles.noMoreData}>
                     <Text style={styles.noMoreDataText}>没有更多数据了</Text>
@@ -180,7 +369,11 @@ export default function MineScreen() {
             }}
             ListEmptyComponent={() => (
               <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>暂无材料</Text>
+                <Text style={styles.emptyText}>
+                  {activeFilter === 'ingredients' && '暂无材料'}
+                  {activeFilter === 'cocktails' && '暂无配方'}
+                  {activeFilter === 'stars' && '暂无收藏'}
+                </Text>
               </View>
             )}
           />
@@ -214,23 +407,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
   },
-  userHeader: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+  headerContainer: {
+    display: 'flex',
+    flexDirection: 'row',
     alignItems: 'center',
+    padding: 20,
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-  },
-  emailText: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 20,
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    marginRight: 12,
   },
   loginPrompt: {
     alignItems: 'center',
@@ -240,7 +427,35 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 20,
   },
-  ingredientsList: {
+  filterContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f8f8f8',
+    marginRight: 12,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  filterButtonActive: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  filterButtonText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  filterButtonTextActive: {
+    color: '#fff',
+  },
+  listContainer: {
     padding: 20,
   },
   ingredientCard: {
@@ -314,5 +529,62 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#999',
+  },
+  cocktailCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: 'hidden',
+  },
+  cocktailInfo: {
+    padding: 16,
+  },
+  cocktailName: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 4,
+  },
+  cocktailEnName: {
+    fontSize: 14,
+    color: '#666',
+    fontStyle: 'italic',
+    marginBottom: 12,
+  },
+  cocktailDescription: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    marginBottom: 12,
+  },
+  cocktailMeta: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cocktailAuthor: {
+    fontSize: 12,
+    color: '#999',
+    flex: 1,
+  },
+  cocktailStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  cocktailStar: {
+    fontSize: 12,
+    color: '#FFA500',
+    backgroundColor: '#FFF8DC',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
 });
