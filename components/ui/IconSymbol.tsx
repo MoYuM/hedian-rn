@@ -29,6 +29,11 @@ const MAPPING: IconFamily = {
     name: 'user',
     description: '底部导航栏我的图标',
   },
+  'menubar.search': {
+    family: 'Feather',
+    name: 'search',
+    description: '底部导航栏搜索图标',
+  },
 };
 
 const ICON_COMPONENTS: Record<string, ComponentType<any>> = {

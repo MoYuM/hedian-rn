@@ -22,7 +22,7 @@ export default function TabLayout() {
         options={{
           title: '搜索',
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} color={color} name="menubar.home" />
+            <IconSymbol size={28} color={color} name="menubar.search" />
           ),
         }}
       />
