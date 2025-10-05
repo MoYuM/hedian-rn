@@ -1,13 +1,12 @@
 import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
-import { PlaceholderImage } from '@/components/ui/PlaceholderImage';
+import { CocktailCard } from '@/components/CocktailCard';
+import { Cocktail } from '@/types/cocktails';
+import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import {
   FlatList,
   Image,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -61,50 +60,11 @@ export default function HomeScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, refreshing, fetchNextPage]);
 
-  const handleScroll = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const { contentOffset, contentSize, layoutMeasurement } =
-        event.nativeEvent;
-      const isCloseToBottom =
-        contentOffset.y + layoutMeasurement.height >= contentSize.height * 0.7;
-
-      if (
-        isCloseToBottom &&
-        hasNextPage &&
-        !isFetchingNextPage &&
-        !refreshing
-      ) {
-        fetchNextPage();
-      }
-    },
-    [hasNextPage, isFetchingNextPage, refreshing, fetchNextPage]
-  );
-
-  const renderCocktailCard = ({ item: cocktail }: { item: any }) => (
-    <TouchableOpacity style={styles.cocktailCard}>
-      {cocktail.image ? (
-        <Image source={{ uri: cocktail.image }} style={styles.cocktailImage} />
-      ) : (
-        <PlaceholderImage width="100%" height={200} text="🍹" />
-      )}
-      <View style={styles.cocktailInfo}>
-        <Text style={styles.cocktailName}>{cocktail.name}</Text>
-        <Text style={styles.cocktailEnName}>{cocktail.en_name}</Text>
-        <View style={styles.cocktailMeta}>
-          <View style={styles.starContainer}>
-            <Text style={styles.starIcon}>⭐</Text>
-            <Text style={styles.starCount}>{cocktail.star}</Text>
-          </View>
-          <Text style={styles.authorName}>by {cocktail.author_name}</Text>
-        </View>
-        <Text style={styles.cocktailMethod} numberOfLines={2}>
-          {cocktail.method}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  const renderCategoryTag = ({ item: category }: { item: any }) => (
+  const renderCategoryTag = ({
+    item: category,
+  }: {
+    item: { id: string; name: string };
+  }) => (
     <TouchableOpacity
       style={[
         styles.categoryTag,
@@ -171,22 +131,15 @@ export default function HomeScreen() {
         />
       </View>
 
-      {/* 鸡尾酒列表 */}
-      <FlatList
+      {/* 鸡尾酒列表 - 瀑布流布局 */}
+      <MasonryList
         data={allCocktails}
-        renderItem={renderCocktailCard}
+        renderItem={({ item }) => <CocktailCard cocktail={item as Cocktail} />}
         keyExtractor={item => item.id.toString()}
-        contentContainerStyle={styles.cocktailsList}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={['#007AFF']}
-            tintColor="#007AFF"
-          />
-        }
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
+        style={styles.cocktailsList}
+        numColumns={2}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
         ListFooterComponent={() => {
@@ -278,68 +231,6 @@ const styles = StyleSheet.create({
   },
   cocktailsList: {
     paddingHorizontal: 20,
-  },
-  cocktailCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  cocktailImage: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#f0f0f0',
-  },
-  cocktailInfo: {
-    padding: 16,
-  },
-  cocktailName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
-  },
-  cocktailEnName: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-    marginBottom: 12,
-  },
-  cocktailMeta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  starContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  starIcon: {
-    fontSize: 16,
-    marginRight: 4,
-  },
-  starCount: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  authorName: {
-    fontSize: 12,
-    color: '#999',
-  },
-  cocktailMethod: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
   },
   loadingMore: {
     padding: 20,

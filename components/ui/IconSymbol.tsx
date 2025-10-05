@@ -1,5 +1,7 @@
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { SymbolWeight } from 'expo-symbols';
 import { ComponentType } from 'react';
 import {
@@ -34,11 +36,23 @@ const MAPPING: IconFamily = {
     name: 'search',
     description: '底部导航栏搜索图标',
   },
+  'star-outline': {
+    family: 'MaterialIcons',
+    name: 'star-outline',
+    description: '星形图标',
+  },
+  'star-filled': {
+    family: 'MaterialIcons',
+    name: 'star',
+    description: '星形图标填满的',
+  },
 };
 
 const ICON_COMPONENTS: Record<string, ComponentType<any>> = {
   Entypo,
   Feather,
+  FontAwesome,
+  MaterialIcons,
 };
 
 /**
