@@ -1,4 +1,4 @@
-import { getCocktailsList } from '@/api/cocktails';
+import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
@@ -11,7 +11,6 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -29,15 +28,19 @@ export default function HomeScreen() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
+    isPending,
   } = useInfiniteQuery({
     queryKey: ['cocktailList', searchText, selectedCategory],
-    queryFn: ({ pageParam }) =>
-      getCocktailsList({
+    queryFn: ({ pageParam }) => {
+      const params: GetCocktailsListParams = {
         page: pageParam,
         size: 10,
-        search: searchText || undefined,
-        category: selectedCategory !== 'all' ? selectedCategory : undefined,
-      }),
+      };
+      if (selectedCategory === 'is_makeable') {
+        params.is_makeable = true;
+      }
+      return getCocktailsList(params);
+    },
     initialPageParam: 1,
     getNextPageParam: (lastPage, pages) =>
       lastPage.total > pages.length * 10 ? pages.length + 1 : undefined,
@@ -45,10 +48,7 @@ export default function HomeScreen() {
 
   const categories = [
     { id: 'all', name: '全部' },
-    { id: 'classic', name: '经典' },
-    { id: 'modern', name: '现代' },
-    { id: 'tropical', name: '热带' },
-    { id: 'sour', name: '酸味' },
+    { id: 'is_makeable', name: '可制作' },
   ];
 
   const handleLogin = () => {
@@ -129,15 +129,15 @@ export default function HomeScreen() {
     </TouchableOpacity>
   );
 
-  if (status === 'pending') {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>加载中...</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  // if (status === 'pending') {
+  //   return (
+  //     <SafeAreaView style={styles.container}>
+  //       <View style={styles.loadingContainer}>
+  //         <Text style={styles.loadingText}>加载中...</Text>
+  //       </View>
+  //     </SafeAreaView>
+  //   );
+  // }
 
   if (status === 'error') {
     return (
@@ -160,23 +160,13 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* 头部区域 */}
-      {/* <View style={styles.header}> */}
-
-      {/* 搜索栏 */}
-      {/* <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="搜索鸡尾酒..."
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholderTextColor="#999"
-          />
-        </View> */}
-      {/* </View> */}
-
-      {/* 分类标签 */}
       <View style={styles.categoriesContainer}>
+        <Image
+          style={styles.avatar}
+          source={{
+            uri: 'https://s1.aigei.com/prevfiles/9f7f85b3b9384d9baf5d679ef2296eb8.jpg?e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:Uo38WTfJnBXieqNx2CRXM72JTlk=',
+          }}
+        />
         <FlatList
           data={categories}
           renderItem={renderCategoryTag}
@@ -206,18 +196,18 @@ export default function HomeScreen() {
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
         ListFooterComponent={() => {
-          if (isFetchingNextPage) {
+          if (isPending) {
             return (
               <View style={styles.loadingMore}>
-                <Text style={styles.loadingMoreText}>加载更多...</Text>
+                <Text style={styles.loadingMoreText}>加载中...</Text>
               </View>
             );
           }
 
-          if (!hasNextPage && allCocktails.length > 0) {
+          if (!isPending && !hasNextPage && allCocktails.length > 0) {
             return (
               <View style={styles.noMoreData}>
-                <Text style={styles.noMoreDataText}>没有更多数据了</Text>
+                <Text style={styles.noMoreDataText}>没有更多了~</Text>
               </View>
             );
           }
@@ -238,15 +228,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#666',
   },
   errorContainer: {
     flex: 1,
@@ -270,65 +251,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  header: {
-    padding: 20,
-    paddingTop: 60,
-    backgroundColor: '#fff',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  title: {
-    color: '#000',
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  subtitle: {
-    fontSize: 16,
-    opacity: 0.7,
-    color: '#666',
-    marginBottom: 20,
-  },
-  searchContainer: {
-    marginTop: 16,
-  },
-  searchInput: {
-    height: 44,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 22,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-  },
-  loginButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  loginButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
   categoriesContainer: {
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
   },
   categoriesList: {
     paddingHorizontal: 20,
@@ -341,6 +268,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
     borderWidth: 1,
     borderColor: '#e0e0e0',
+    height: 32,
   },
   categoryTagActive: {
     backgroundColor: '#007AFF',
@@ -355,8 +283,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   cocktailsList: {
-    padding: 20,
-    // paddingBottom: 100,
+    paddingHorizontal: 20,
   },
   cocktailCard: {
     backgroundColor: '#fff',
@@ -443,5 +370,10 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: '#999',
+  },
+  avatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
   },
 });

@@ -3,7 +3,9 @@ import { Cocktail } from '../types/cocktails';
 import { post } from '../utils/request';
 
 export type GetCocktailsListResponse = PaginatedResponse<Cocktail>;
-export type GetCocktailsListParams = PaginationParams;
+export type GetCocktailsListParams = PaginationParams & {
+  is_makeable?: boolean;
+};
 
 /**
  * 获取鸡尾酒列表
