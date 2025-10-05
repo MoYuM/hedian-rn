@@ -1,5 +1,6 @@
 import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
-import { CocktailCard } from '@/components/CocktailCard';
+import CocktailCard from '@/components/cocktail-card';
+import CocktailDetailModal from '@/components/cocktail-detail';
 import { Cocktail } from '@/types/cocktails';
 import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -17,6 +18,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCocktail, setSelectedCocktail] = useState<Cocktail | null>(
+    null
+  );
+  const [cardLayout, setCardLayout] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  } | null>(null);
 
   const {
     data: cocktails,
@@ -59,6 +69,22 @@ export default function HomeScreen() {
       fetchNextPage();
     }
   }, [hasNextPage, isFetchingNextPage, refreshing, fetchNextPage]);
+
+  const handleCocktailPress = useCallback(
+    (
+      cocktail: Cocktail,
+      layout: { x: number; y: number; width: number; height: number }
+    ) => {
+      setSelectedCocktail(cocktail);
+      setCardLayout(layout);
+    },
+    []
+  );
+
+  const handleCloseDetail = useCallback(() => {
+    setSelectedCocktail(null);
+    setCardLayout(null);
+  }, []);
 
   const renderCategoryTag = ({
     item: category,
@@ -134,7 +160,12 @@ export default function HomeScreen() {
       {/* 鸡尾酒列表 - 瀑布流布局 */}
       <MasonryList
         data={allCocktails}
-        renderItem={({ item }) => <CocktailCard cocktail={item as Cocktail} />}
+        renderItem={({ item }) => (
+          <CocktailCard
+            cocktail={item as Cocktail}
+            onPress={layout => handleCocktailPress(item as Cocktail, layout)}
+          />
+        )}
         keyExtractor={item => item.id.toString()}
         style={styles.cocktailsList}
         numColumns={2}
@@ -166,6 +197,14 @@ export default function HomeScreen() {
             <Text style={styles.emptyText}>暂无鸡尾酒配方</Text>
           </View>
         )}
+      />
+
+      {/* Cocktail 详情模态框 */}
+      <CocktailDetailModal
+        visible={!!selectedCocktail}
+        cocktail={selectedCocktail}
+        onClose={handleCloseDetail}
+        cardLayout={cardLayout || undefined}
       />
     </SafeAreaView>
   );

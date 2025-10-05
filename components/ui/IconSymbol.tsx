@@ -46,6 +46,16 @@ const MAPPING: IconFamily = {
     name: 'star',
     description: '星形图标填满的',
   },
+  'arrow-left': {
+    family: 'Feather',
+    name: 'arrow-left',
+    description: '左箭头',
+  },
+  'arrow-right': {
+    family: 'Feather',
+    name: 'arrow-right',
+    description: '右箭头',
+  },
 };
 
 const ICON_COMPONENTS: Record<string, ComponentType<any>> = {

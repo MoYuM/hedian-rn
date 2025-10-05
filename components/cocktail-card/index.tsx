@@ -1,16 +1,42 @@
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage';
 import { Cocktail } from '@/types/cocktails';
+import React from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { IconSymbol } from './ui/IconSymbol';
+import { IconSymbol } from '../ui/IconSymbol';
 
 interface CocktailCardProps {
   cocktail: Cocktail;
-  onPress?: () => void;
+  onPress?: (cardLayout: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  }) => void;
 }
 
-export function CocktailCard({ cocktail, onPress }: CocktailCardProps) {
+export default function CocktailCard({ cocktail, onPress }: CocktailCardProps) {
+  const cardRef = React.useRef<View>(null);
+
+  const handlePress = () => {
+    if (onPress) {
+      // 测量卡片位置
+      cardRef.current?.measure((x, y, width, height, pageX, pageY) => {
+        onPress({
+          x: pageX,
+          y: pageY,
+          width,
+          height,
+        });
+      });
+    }
+  };
+
   return (
-    <TouchableOpacity style={styles.cocktailCard} onPress={onPress}>
+    <TouchableOpacity
+      style={styles.cocktailCard}
+      onPress={handlePress}
+      ref={cardRef}
+    >
       {cocktail.image ? (
         <Image source={{ uri: cocktail.image }} style={styles.cocktailImage} />
       ) : (
@@ -74,6 +100,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 16,
     marginHorizontal: 4,
+  },
+  cardTouchable: {
+    flex: 1,
   },
   cocktailImage: {
     width: '100%',
