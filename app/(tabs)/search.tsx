@@ -1,14 +1,16 @@
 import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
 import { getUserIngredientsList } from '@/api/user-ingredients';
 import { getUserInfo, GetUserInfoResponse } from '@/api/users';
-import { PlaceholderImage } from '@/components/ui/PlaceholderImage';
+import CocktailCard from '@/components/cocktail-card';
+import { pagePadding } from '@/constants/theme';
+import { Cocktail } from '@/types/cocktails';
+import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   Button,
   FlatList,
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   RefreshControl,
@@ -149,30 +151,6 @@ export default function SearchScreen() {
     ]
   );
 
-  const renderCocktailCard = ({ item: cocktail }: { item: any }) => (
-    <TouchableOpacity style={styles.card}>
-      {cocktail.image ? (
-        <Image source={{ uri: cocktail.image }} style={styles.cardImage} />
-      ) : (
-        <PlaceholderImage width="100%" height={200} text="🍹" />
-      )}
-      <View style={styles.cardInfo}>
-        <Text style={styles.cardName}>{cocktail.name}</Text>
-        <Text style={styles.cardEnName}>{cocktail.en_name}</Text>
-        <View style={styles.cardMeta}>
-          <View style={styles.starContainer}>
-            <Text style={styles.starIcon}>⭐</Text>
-            <Text style={styles.starCount}>{cocktail.star}</Text>
-          </View>
-          <Text style={styles.authorName}>by {cocktail.author_name}</Text>
-        </View>
-        <Text style={styles.cardDescription} numberOfLines={2}>
-          {cocktail.method}
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   const renderIngredientCard = ({ item: ingredient }: { item: any }) => (
     <TouchableOpacity style={styles.card}>
       <View style={styles.cardInfo}>
@@ -254,9 +232,6 @@ export default function SearchScreen() {
   if (activeTab === 'ingredients' && !userInfo && !isUserInfoPending) {
     return (
       <SafeAreaView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>搜索</Text>
-        </View>
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -280,10 +255,6 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>搜索</Text>
-      </View>
-
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -319,26 +290,17 @@ export default function SearchScreen() {
             <Text style={styles.retryButtonText}>重试</Text>
           </TouchableOpacity>
         </View>
-      ) : (
-        <FlatList
+      ) : activeTab === 'cocktails' ? (
+        <MasonryList
           data={currentData}
-          renderItem={
-            activeTab === 'cocktails'
-              ? renderCocktailCard
-              : renderIngredientCard
-          }
-          keyExtractor={item => `${activeTab}-${item.id}`}
-          contentContainerStyle={styles.listContainer}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={handleRefresh}
-              colors={['#007AFF']}
-              tintColor="#007AFF"
-            />
-          }
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
+          renderItem={({ item }) => (
+            <CocktailCard cocktail={item as Cocktail} />
+          )}
+          keyExtractor={item => item.id.toString()}
+          style={styles.cocktailsList}
+          numColumns={2}
+          refreshing={refreshing}
+          onRefresh={handleRefresh}
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.3}
           ListFooterComponent={() => {
@@ -374,11 +336,54 @@ export default function SearchScreen() {
           }}
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                {activeTab === 'cocktails'
-                  ? '未找到相关鸡尾酒'
-                  : '未找到相关材料'}
-              </Text>
+              <Text style={styles.emptyText}>未找到相关鸡尾酒</Text>
+            </View>
+          )}
+        />
+      ) : (
+        <FlatList
+          data={currentData}
+          renderItem={renderIngredientCard}
+          keyExtractor={item => `ingredients-${item.id}`}
+          contentContainerStyle={styles.listContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={['#007AFF']}
+              tintColor="#007AFF"
+            />
+          }
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={() => {
+            if (currentIsFetchingNextPage) {
+              return (
+                <View style={styles.loadingMore}>
+                  <Text style={styles.loadingMoreText}>加载更多...</Text>
+                </View>
+              );
+            }
+
+            if (
+              !currentIsPending &&
+              !currentHasNextPage &&
+              currentData.length > 0
+            ) {
+              return (
+                <View style={styles.noMoreData}>
+                  <Text style={styles.noMoreDataText}>没有更多了~</Text>
+                </View>
+              );
+            }
+
+            return null;
+          }}
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>未找到相关材料</Text>
             </View>
           )}
         />
@@ -392,22 +397,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#333',
   },
   searchContainer: {
-    padding: 20,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    paddingTop: pagePadding,
+    paddingRight: pagePadding,
+    paddingLeft: pagePadding,
   },
   searchInput: {
     height: 44,
@@ -420,20 +418,17 @@ const styles = StyleSheet.create({
   },
   tabContainer: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    padding: pagePadding,
   },
   tabButton: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
     backgroundColor: '#f8f8f8',
     marginRight: 12,
     borderWidth: 1,
     borderColor: '#e0e0e0',
+    height: 32,
   },
   tabButtonActive: {
     backgroundColor: '#007AFF',
@@ -448,7 +443,10 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   listContainer: {
-    padding: 20,
+    paddingHorizontal: pagePadding,
+  },
+  cocktailsList: {
+    paddingHorizontal: pagePadding,
   },
   card: {
     backgroundColor: '#fff',
