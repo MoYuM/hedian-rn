@@ -1,6 +1,9 @@
 import { getUserCocktailsList } from '@/api/user-cocktails';
 import { getUserIngredientsList } from '@/api/user-ingredients';
 import { getUserInfo, GetUserInfoResponse } from '@/api/users';
+import CocktailCard from '@/components/cocktail-card';
+import { Cocktail } from '@/types/cocktails';
+import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
@@ -19,7 +22,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // 筛选器类型
-type FilterType = 'ingredients' | 'cocktails' | 'stars';
+type FilterType = 'ingredients' | 'cocktails';
 
 /**
  * 我的页面
@@ -74,26 +77,6 @@ export default function MineScreen() {
     enabled: !!userInfo && activeFilter === 'cocktails', // 只有登录后且选中配方时才查询
   });
 
-  const {
-    data: starredCocktails,
-    refetch: refetchStarredCocktails,
-    fetchNextPage: fetchNextStarredCocktails,
-    hasNextPage: hasNextStarredCocktails,
-    isFetchingNextPage: isFetchingNextStarredCocktails,
-  } = useInfiniteQuery({
-    queryKey: ['starredCocktails'],
-    queryFn: ({ pageParam }) =>
-      getUserCocktailsList({
-        page: pageParam,
-        size: 10,
-        is_star: true, // 只获取star的配方
-      }),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, pages) =>
-      lastPage.total > pages.length * 10 ? pages.length + 1 : undefined,
-    enabled: !!userInfo && activeFilter === 'stars', // 只有登录后且选中star时才查询
-  });
-
   const handleLogin = () => {
     router.push('/login' as any);
   };
@@ -106,9 +89,6 @@ export default function MineScreen() {
         break;
       case 'cocktails':
         await refetchCocktails();
-        break;
-      case 'stars':
-        await refetchStarredCocktails();
         break;
     }
     setRefreshing(false);
@@ -128,11 +108,6 @@ export default function MineScreen() {
           fetchNextCocktails();
         }
         break;
-      case 'stars':
-        if (hasNextStarredCocktails && !isFetchingNextStarredCocktails) {
-          fetchNextStarredCocktails();
-        }
-        break;
     }
   }, [
     activeFilter,
@@ -142,9 +117,6 @@ export default function MineScreen() {
     hasNextCocktails,
     isFetchingNextCocktails,
     fetchNextCocktails,
-    hasNextStarredCocktails,
-    isFetchingNextStarredCocktails,
-    fetchNextStarredCocktails,
     refreshing,
   ]);
 
@@ -214,8 +186,6 @@ export default function MineScreen() {
         return ingredients?.pages.flatMap(page => page.list) || [];
       case 'cocktails':
         return cocktails?.pages.flatMap(page => page.list) || [];
-      case 'stars':
-        return starredCocktails?.pages.flatMap(page => page.list) || [];
       default:
         return [];
     }
@@ -227,8 +197,6 @@ export default function MineScreen() {
         return isFetchingNextIngredients;
       case 'cocktails':
         return isFetchingNextCocktails;
-      case 'stars':
-        return isFetchingNextStarredCocktails;
       default:
         return false;
     }
@@ -240,8 +208,6 @@ export default function MineScreen() {
         return hasNextIngredients;
       case 'cocktails':
         return hasNextCocktails;
-      case 'stars':
-        return hasNextStarredCocktails;
       default:
         return false;
     }
@@ -252,7 +218,6 @@ export default function MineScreen() {
       case 'ingredients':
         return renderIngredientCard;
       case 'cocktails':
-      case 'stars':
         return renderCocktailCard;
       default:
         return renderIngredientCard;
@@ -311,72 +276,92 @@ export default function MineScreen() {
                   我的配方
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.filterButton,
-                  activeFilter === 'stars' && styles.filterButtonActive,
-                ]}
-                onPress={() => setActiveFilter('stars')}
-              >
-                <Text
-                  style={[
-                    styles.filterButtonText,
-                    activeFilter === 'stars' && styles.filterButtonTextActive,
-                  ]}
-                >
-                  我的 Star
-                </Text>
-              </TouchableOpacity>
             </View>
           </View>
 
           {/* 列表 */}
-          <FlatList
-            data={currentData}
-            renderItem={renderItem}
-            keyExtractor={item => `${item.id}-${item.name}`}
-            contentContainerStyle={styles.listContainer}
-            refreshControl={
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={handleRefresh}
-                colors={['#007AFF']}
-                tintColor="#007AFF"
-              />
-            }
-            onScroll={handleScroll}
-            scrollEventThrottle={16}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.3}
-            ListFooterComponent={() => {
-              if (isFetchingNext) {
-                return (
-                  <View style={styles.loadingMore}>
-                    <Text style={styles.loadingMoreText}>加载更多...</Text>
-                  </View>
-                );
+          {activeFilter === 'ingredients' ? (
+            <FlatList
+              data={currentData}
+              renderItem={renderItem}
+              keyExtractor={item => `${item.id}-${item.name}`}
+              contentContainerStyle={styles.listContainer}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={handleRefresh}
+                  colors={['#007AFF']}
+                  tintColor="#007AFF"
+                />
               }
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.3}
+              ListFooterComponent={() => {
+                if (isFetchingNext) {
+                  return (
+                    <View style={styles.loadingMore}>
+                      <Text style={styles.loadingMoreText}>加载更多...</Text>
+                    </View>
+                  );
+                }
 
-              if (!hasNextPage && currentData.length > 0) {
-                return (
-                  <View style={styles.noMoreData}>
-                    <Text style={styles.noMoreDataText}>没有更多数据了</Text>
-                  </View>
-                );
-              }
+                if (!hasNextPage && currentData.length > 0) {
+                  return (
+                    <View style={styles.noMoreData}>
+                      <Text style={styles.noMoreDataText}>没有更多数据了</Text>
+                    </View>
+                  );
+                }
 
-              return null;
-            }}
-            ListEmptyComponent={() => (
-              <View style={styles.emptyContainer}>
-                <Text style={styles.emptyText}>
-                  {activeFilter === 'ingredients' && '暂无材料'}
-                  {activeFilter === 'cocktails' && '暂无配方'}
-                  {activeFilter === 'stars' && '暂无收藏'}
-                </Text>
-              </View>
-            )}
-          />
+                return null;
+              }}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>暂无材料</Text>
+                </View>
+              )}
+            />
+          ) : (
+            <MasonryList
+              data={currentData}
+              renderItem={({ item }) => (
+                <CocktailCard cocktail={item as Cocktail} />
+              )}
+              keyExtractor={item => item.id.toString()}
+              style={styles.cocktailsList}
+              numColumns={2}
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              onEndReached={handleLoadMore}
+              onEndReachedThreshold={0.3}
+              ListFooterComponent={() => {
+                if (isFetchingNext) {
+                  return (
+                    <View style={styles.loadingMore}>
+                      <Text style={styles.loadingMoreText}>加载中...</Text>
+                    </View>
+                  );
+                }
+
+                if (!isFetchingNext && !hasNextPage && currentData.length > 0) {
+                  return (
+                    <View style={styles.noMoreData}>
+                      <Text style={styles.noMoreDataText}>没有更多了~</Text>
+                    </View>
+                  );
+                }
+
+                return null;
+              }}
+              ListEmptyComponent={() => (
+                <View style={styles.emptyContainer}>
+                  <Text style={styles.emptyText}>暂无配方</Text>
+                </View>
+              )}
+            />
+          )}
         </View>
       ) : (
         <View style={styles.content}>
@@ -457,6 +442,9 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: 20,
+  },
+  cocktailsList: {
+    paddingHorizontal: 20,
   },
   ingredientCard: {
     backgroundColor: '#fff',
