@@ -22,10 +22,7 @@ export default function RootLayout() {
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="cocktail-detail/[id]"
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="cocktail-detail" options={{ headerShown: false }} />
         <Stack.Screen name="add-ingredient" options={{ headerShown: false }} />
         <Stack.Screen name="create-cocktail" options={{ headerShown: false }} />
         <Stack.Screen name="not-found" />
