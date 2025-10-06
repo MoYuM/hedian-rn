@@ -2,6 +2,7 @@ import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
 import { getUserIngredientsList } from '@/api/user-ingredients';
 import { getUserInfo, GetUserInfoResponse } from '@/api/users';
 import CocktailCard from '@/components/cocktail-card';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { pagePadding } from '@/constants/theme';
 import { Cocktail } from '@/types/cocktails';
 import MasonryList from '@react-native-seoul/masonry-list';
@@ -37,7 +38,6 @@ export default function SearchScreen() {
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
     });
-  console.log('userInfo', userInfo);
 
   // 鸡尾酒搜索
   const {
@@ -232,6 +232,17 @@ export default function SearchScreen() {
   if (activeTab === 'ingredients' && !userInfo && !isUserInfoPending) {
     return (
       <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => router.back()}
+          >
+            <IconSymbol size={24} color="#007AFF" name="chevron.left" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>搜索</Text>
+          <View style={styles.headerPlaceholder} />
+        </View>
+
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
@@ -255,6 +266,17 @@ export default function SearchScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <IconSymbol size={24} color="#007AFF" name="chevron.left" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>搜索</Text>
+        <View style={styles.headerPlaceholder} />
+      </View>
+
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -397,10 +419,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  backButton: {
+    padding: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#333',
+  },
+  headerPlaceholder: {
+    width: 40,
   },
   searchContainer: {
     paddingTop: pagePadding,
@@ -462,11 +500,6 @@ const styles = StyleSheet.create({
     elevation: 3,
     overflow: 'hidden',
   },
-  cardImage: {
-    width: '100%',
-    height: 200,
-    backgroundColor: '#f0f0f0',
-  },
   cardInfo: {
     padding: 16,
   },
@@ -492,23 +525,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  starContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  starIcon: {
-    fontSize: 16,
-    marginRight: 4,
-  },
-  starCount: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  authorName: {
-    fontSize: 12,
-    color: '#999',
   },
   ingredientUsage: {
     fontSize: 12,

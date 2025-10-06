@@ -18,11 +18,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="search"
+        name="create"
         options={{
-          title: '搜索',
+          title: '创建',
           tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} color={color} name="menubar.search" />
+            <IconSymbol size={28} color={color} name="menubar.plus" />
           ),
         }}
       />

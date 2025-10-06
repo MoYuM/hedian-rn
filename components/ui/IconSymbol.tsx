@@ -56,6 +56,11 @@ const MAPPING: IconFamily = {
     name: 'arrow-right',
     description: '右箭头',
   },
+  'menubar.plus': {
+    family: 'Feather',
+    name: 'plus',
+    description: '加号圆圈图标',
+  },
 };
 
 const ICON_COMPONENTS: Record<string, ComponentType<any>> = {

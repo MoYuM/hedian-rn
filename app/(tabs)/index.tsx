@@ -1,8 +1,10 @@
 import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
 import CocktailCard from '@/components/cocktail-card';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Cocktail } from '@/types/cocktails';
 import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   FlatList,
@@ -129,6 +131,12 @@ export default function HomeScreen() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesList}
         />
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={() => router.push('/search' as any)}
+        >
+          <IconSymbol size={24} name="menubar.search" color="#666" />
+        </TouchableOpacity>
       </View>
 
       {/* 鸡尾酒列表 - 瀑布流布局 */}
@@ -203,6 +211,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 20,
+  },
+  searchButton: {
+    padding: 8,
+    marginLeft: 'auto',
   },
   categoriesList: {
     paddingHorizontal: 20,
