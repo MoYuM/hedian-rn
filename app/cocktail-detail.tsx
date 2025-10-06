@@ -42,17 +42,17 @@ export default function CocktailDetailScreen() {
           style={styles.backButton}
           onPress={() => router.back()}
         >
-          <IconSymbol name="arrow-left" color="#fff" size={24} />
+          <IconSymbol name="arrow-left" color="#000" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>鸡尾酒详情</Text>
-        <View style={styles.placeholder} />
+        {cocktailData.author_name && (
+          <Text style={styles.authorName}>{cocktailData.author_name}</Text>
+        )}
       </View>
 
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
-        {/* 鸡尾酒图片 */}
         <View style={styles.imageContainer}>
           {cocktailData.image ? (
             <Image
@@ -65,11 +65,8 @@ export default function CocktailDetailScreen() {
               <Text style={styles.placeholderText}>🍹</Text>
             </View>
           )}
-          {/* 渐变遮罩 */}
-          <View style={styles.imageGradient} />
         </View>
 
-        {/* 基本信息卡片 */}
         <View style={styles.infoCard}>
           <View style={styles.titleContainer}>
             <View style={styles.titleTextContainer}>
@@ -87,61 +84,17 @@ export default function CocktailDetailScreen() {
               <Text style={styles.starCount}>{cocktailData.star}</Text>
             </View>
           </View>
-
-          {cocktailData.author_name && (
-            <View style={styles.authorContainer}>
-              <IconSymbol name="person" color="#666" size={16} />
-              <Text style={styles.authorName}>
-                by {cocktailData.author_name}
-              </Text>
-            </View>
-          )}
-
-          {/* 状态标签 */}
-          <View style={styles.statusContainer}>
-            {cocktailData.is_public && (
-              <View style={styles.statusTag}>
-                <IconSymbol name="globe" color="#007AFF" size={14} />
-                <Text style={styles.statusText}>公开</Text>
-              </View>
-            )}
-            {cocktailData.is_star && (
-              <View style={[styles.statusTag, styles.starredTag]}>
-                <IconSymbol name="star-filled" color="#eac54f" size={14} />
-                <Text style={[styles.statusText, styles.starredText]}>
-                  已收藏
-                </Text>
-              </View>
-            )}
-          </View>
         </View>
-
-        {/* 制作方法 */}
-        {cocktailData.method && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <IconSymbol name="recipe" color="#007AFF" size={20} />
-              <Text style={styles.sectionTitle}>制作方法</Text>
-            </View>
-            <View style={styles.methodCard}>
-              <Text style={styles.methodText}>{cocktailData.method}</Text>
-            </View>
-          </View>
-        )}
 
         {/* 材料列表 */}
         {cocktailData.ingredients && cocktailData.ingredients.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <IconSymbol name="ingredients" color="#007AFF" size={20} />
               <Text style={styles.sectionTitle}>所需材料</Text>
             </View>
-            <View style={styles.ingredientsCard}>
+            <View>
               {cocktailData.ingredients.map((ingredient, index) => (
                 <View key={index} style={styles.ingredientItem}>
-                  <View style={styles.ingredientIcon}>
-                    <Text style={styles.ingredientEmoji}>🥃</Text>
-                  </View>
                   <View style={styles.ingredientInfo}>
                     <Text style={styles.ingredientName}>{ingredient.name}</Text>
                     {ingredient.usage && (
@@ -156,14 +109,23 @@ export default function CocktailDetailScreen() {
           </View>
         )}
 
+        {/* 制作方法 */}
+        {cocktailData.method && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>制作方法</Text>
+            </View>
+            <Text style={styles.methodText}>{cocktailData.method}</Text>
+          </View>
+        )}
+
         {/* 装饰物 */}
         {cocktailData.garnish && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <IconSymbol name="decorative" color="#007AFF" size={20} />
               <Text style={styles.sectionTitle}>装饰物</Text>
             </View>
-            <View style={styles.garnishCard}>
+            <View>
               <Text style={styles.garnishText}>{cocktailData.garnish}</Text>
             </View>
           </View>
@@ -173,7 +135,6 @@ export default function CocktailDetailScreen() {
         {cocktailData.history && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <IconSymbol name="history" color="#007AFF" size={20} />
               <Text style={styles.sectionTitle}>历史背景</Text>
             </View>
             <View style={styles.historyCard}>
@@ -186,48 +147,13 @@ export default function CocktailDetailScreen() {
         {cocktailData.note && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <IconSymbol name="note" color="#007AFF" size={20} />
               <Text style={styles.sectionTitle}>备注</Text>
             </View>
-            <View style={styles.noteCard}>
+            <View>
               <Text style={styles.noteText}>{cocktailData.note}</Text>
             </View>
           </View>
         )}
-
-        {/* 时间信息 */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <IconSymbol name="time" color="#007AFF" size={20} />
-            <Text style={styles.sectionTitle}>时间信息</Text>
-          </View>
-          <View style={styles.timeCard}>
-            <View style={styles.timeItem}>
-              <Text style={styles.timeLabel}>创建时间</Text>
-              <Text style={styles.timeValue}>
-                {new Date(cocktailData.created_at).toLocaleDateString('zh-CN', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </Text>
-            </View>
-            <View style={styles.timeItem}>
-              <Text style={styles.timeLabel}>更新时间</Text>
-              <Text style={styles.timeValue}>
-                {new Date(cocktailData.updated_at).toLocaleDateString('zh-CN', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </Text>
-            </View>
-          </View>
-        </View>
 
         {/* 底部间距 */}
         <View style={styles.bottomSpacing} />
@@ -239,7 +165,12 @@ export default function CocktailDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
   },
   errorContainer: {
     flex: 1,
@@ -251,27 +182,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     marginBottom: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: '#007AFF',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#fff',
   },
   backButton: {
     padding: 8,
@@ -317,18 +227,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   infoCard: {
-    backgroundColor: '#fff',
     margin: 16,
-    borderRadius: 16,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -372,13 +271,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   authorName: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 16,
     marginLeft: 6,
-  },
-  statusContainer: {
-    flexDirection: 'row',
-    gap: 8,
   },
   statusTag: {
     flexDirection: 'row',
@@ -413,7 +307,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: '#1a1a1a',
-    marginLeft: 8,
   },
   methodCard: {
     backgroundColor: '#fff',
@@ -433,37 +326,10 @@ const styles = StyleSheet.create({
     color: '#333',
     lineHeight: 24,
   },
-  ingredientsCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
   ingredientItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  ingredientIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f8f9fa',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  ingredientEmoji: {
-    fontSize: 20,
+    paddingVertical: 8,
   },
   ingredientInfo: {
     flex: 1,
@@ -474,7 +340,6 @@ const styles = StyleSheet.create({
   ingredientName: {
     fontSize: 16,
     color: '#333',
-    fontWeight: '500',
     flex: 1,
   },
   ingredientUsage: {
@@ -485,19 +350,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 8,
     fontWeight: '500',
-  },
-  garnishCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
   garnishText: {
     fontSize: 16,
@@ -522,19 +374,6 @@ const styles = StyleSheet.create({
     color: '#333',
     lineHeight: 24,
   },
-  noteCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
   noteText: {
     fontSize: 16,
     color: '#333',
@@ -544,14 +383,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
   },
   timeItem: {
     flexDirection: 'row',
