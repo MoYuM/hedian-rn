@@ -1,7 +1,11 @@
+import { addCocktail, removeCocktail } from '@/api/user-cocktails';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Cocktail } from '@/types/cocktails';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -13,10 +17,66 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CocktailDetailScreen() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { cocktail } = useLocalSearchParams<{ cocktail: string }>();
 
   // 解析传递的 cocktail 数据
   const cocktailData: Cocktail = cocktail ? JSON.parse(cocktail) : null;
+
+  // 收藏状态管理
+  const [isStarred, setIsStarred] = useState(cocktailData?.is_star || false);
+  const [starCount, setStarCount] = useState(cocktailData?.star || 0);
+
+  // 添加收藏的 mutation
+  const addCocktailMutation = useMutation({
+    mutationFn: addCocktail,
+    onSuccess: () => {
+      console.log('添加收藏成功');
+      setIsStarred(true);
+      setStarCount(prev => prev + 1);
+      // 使相关查询失效，触发重新获取
+      queryClient.invalidateQueries({ queryKey: ['userCocktails'] });
+      queryClient.invalidateQueries({ queryKey: ['searchCocktails'] });
+      queryClient.invalidateQueries({ queryKey: ['cocktailList'] });
+    },
+    onError: error => {
+      console.error('添加收藏失败:', error);
+      Alert.alert('操作失败', `添加收藏失败: ${error.message}`);
+    },
+  });
+
+  // 移除收藏的 mutation
+  const removeCocktailMutation = useMutation({
+    mutationFn: removeCocktail,
+    onSuccess: () => {
+      console.log('移除收藏成功');
+      setIsStarred(false);
+      setStarCount(prev => Math.max(0, prev - 1));
+      // 使相关查询失效，触发重新获取
+      queryClient.invalidateQueries({ queryKey: ['userCocktails'] });
+      queryClient.invalidateQueries({ queryKey: ['searchCocktails'] });
+      queryClient.invalidateQueries({ queryKey: ['cocktailList'] });
+    },
+    onError: error => {
+      console.error('移除收藏失败:', error);
+      Alert.alert('操作失败', `移除收藏失败: ${error.message}`);
+    },
+  });
+
+  const handleStarPress = () => {
+    if (isLoading) {
+      return;
+    }
+
+    if (isStarred) {
+      removeCocktailMutation.mutate({ cocktailId: cocktailData.id });
+    } else {
+      addCocktailMutation.mutate({ cocktailId: cocktailData.id });
+    }
+  };
+
+  const isLoading =
+    addCocktailMutation.isPending || removeCocktailMutation.isPending;
 
   if (!cocktailData) {
     return (
@@ -76,12 +136,18 @@ export default function CocktailDetailScreen() {
               )}
             </View>
             <View style={styles.starContainer}>
-              <IconSymbol
-                name={cocktailData.star > 0 ? 'star-filled' : 'star-outline'}
-                color={cocktailData.star > 0 ? '#eac54f' : '#666'}
-                size={24}
-              />
-              <Text style={styles.starCount}>{cocktailData.star}</Text>
+              <TouchableOpacity
+                style={styles.starButton}
+                onPress={handleStarPress}
+                disabled={isLoading}
+              >
+                <IconSymbol
+                  name={isStarred ? 'star-filled' : 'star-outline'}
+                  color={isStarred ? '#eac54f' : '#666'}
+                  size={24}
+                />
+                <Text style={styles.starCount}>{starCount}</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -252,6 +318,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
+  },
+  starButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 4,
   },
   starCount: {
     fontSize: 16,
