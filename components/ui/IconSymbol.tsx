@@ -1,3 +1,4 @@
+import AntDesign from '@expo/vector-icons/AntDesign';
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -61,6 +62,16 @@ const MAPPING: IconFamily = {
     name: 'plus',
     description: '加号圆圈图标',
   },
+  inbox: {
+    family: 'AntDesign',
+    name: 'inbox',
+    description: '黄金图标',
+  },
+  close: {
+    family: 'AntDesign',
+    name: 'close',
+    description: '关闭图标',
+  },
 };
 
 const ICON_COMPONENTS: Record<string, ComponentType<any>> = {
@@ -68,6 +79,7 @@ const ICON_COMPONENTS: Record<string, ComponentType<any>> = {
   Feather,
   FontAwesome,
   MaterialIcons,
+  AntDesign,
 };
 
 /**
