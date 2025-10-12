@@ -1,4 +1,5 @@
 import { getUserIngredientsList } from '@/api/user-ingredients';
+import { pagePadding } from '@/constants/theme';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Image } from 'expo-image';
 import { useCallback } from 'react';
@@ -130,7 +131,7 @@ export default function IngredientsList() {
 
 const styles = StyleSheet.create({
   listContainer: {
-    padding: 20,
+    padding: pagePadding,
   },
   ingredientCard: {
     backgroundColor: '#fff',
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   loadingMore: {
-    padding: 20,
+    padding: pagePadding,
     alignItems: 'center',
   },
   loadingMoreText: {
@@ -197,7 +198,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   noMoreData: {
-    padding: 20,
+    padding: pagePadding,
     alignItems: 'center',
   },
   noMoreDataText: {

@@ -1,5 +1,6 @@
 import { getUserCocktailsList } from '@/api/user-cocktails';
 import CocktailCard from '@/components/cocktail-card';
+import { pagePadding } from '@/constants/theme';
 import { Cocktail } from '@/types/cocktails';
 import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery } from '@tanstack/react-query';
@@ -83,10 +84,10 @@ export default function CocktailsList() {
 
 const styles = StyleSheet.create({
   cocktailsList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: pagePadding,
   },
   loadingMore: {
-    padding: 20,
+    padding: pagePadding,
     alignItems: 'center',
   },
   loadingMoreText: {
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   noMoreData: {
-    padding: 20,
+    padding: pagePadding,
     alignItems: 'center',
   },
   noMoreDataText: {

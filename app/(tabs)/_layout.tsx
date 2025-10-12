@@ -1,4 +1,5 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { pagePadding } from '@/constants/theme';
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -57,7 +58,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          listeners={({ navigation }) => {
+          listeners={() => {
             return {
               tabPress: e => {
                 e.preventDefault();
@@ -140,9 +141,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   safeArea: {
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 16,
+    paddingHorizontal: pagePadding,
+    paddingTop: pagePadding,
+    paddingBottom: pagePadding,
   },
   bottomSheetTitle: {
     fontSize: 20,
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 18,
-    paddingHorizontal: 16,
+    paddingHorizontal: pagePadding,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
     marginBottom: 12,

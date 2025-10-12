@@ -1,19 +1,12 @@
 import { getCocktailsList, GetCocktailsListParams } from '@/api/cocktails';
 import CocktailCard from '@/components/cocktail-card';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import Header from '@/components/header';
+import { pagePadding } from '@/constants/theme';
 import { Cocktail } from '@/types/cocktails';
 import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
@@ -62,29 +55,6 @@ export default function HomeScreen() {
     }
   }, [hasNextPage, isFetchingNextPage, refreshing, fetchNextPage]);
 
-  const renderCategoryTag = ({
-    item: category,
-  }: {
-    item: { id: string; name: string };
-  }) => (
-    <TouchableOpacity
-      style={[
-        styles.categoryTag,
-        selectedCategory === category.id && styles.categoryTagActive,
-      ]}
-      onPress={() => setSelectedCategory(category.id)}
-    >
-      <Text
-        style={[
-          styles.categoryTagText,
-          selectedCategory === category.id && styles.categoryTagTextActive,
-        ]}
-      >
-        {category.name}
-      </Text>
-    </TouchableOpacity>
-  );
-
   // if (status === 'pending') {
   //   return (
   //     <SafeAreaView style={styles.container}>
@@ -116,28 +86,12 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.categoriesContainer}>
-        <Image
-          style={styles.avatar}
-          source={{
-            uri: 'https://s1.aigei.com/prevfiles/9f7f85b3b9384d9baf5d679ef2296eb8.jpg?e=2051020800&token=P7S2Xpzfz11vAkASLTkfHN7Fw-oOZBecqeJaxypL:Uo38WTfJnBXieqNx2CRXM72JTlk=',
-          }}
-        />
-        <FlatList
-          data={categories}
-          renderItem={renderCategoryTag}
-          keyExtractor={item => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.categoriesList}
-        />
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={() => router.push('/search' as any)}
-        >
-          <IconSymbol size={24} name="menubar.search" color="#666" />
-        </TouchableOpacity>
-      </View>
+      <Header
+        buttons={categories}
+        activeButton={selectedCategory}
+        onButtonChange={setSelectedCategory}
+        showSearchButton={true}
+      />
 
       {/* 鸡尾酒列表 - 瀑布流布局 */}
       <MasonryList
@@ -188,7 +142,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: pagePadding,
   },
   errorText: {
     fontSize: 16,
@@ -206,46 +160,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-  categoriesContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 20,
-  },
-  searchButton: {
-    padding: 8,
-    marginLeft: 'auto',
-  },
-  categoriesList: {
-    paddingHorizontal: 20,
-  },
-  categoryTag: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: '#f8f8f8',
-    marginRight: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    height: 32,
-  },
-  categoryTagActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  categoryTagText: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  categoryTagTextActive: {
-    color: '#fff',
-  },
   cocktailsList: {
-    paddingHorizontal: 20,
+    paddingHorizontal: pagePadding,
   },
   loadingMore: {
-    padding: 20,
+    padding: pagePadding,
     alignItems: 'center',
   },
   loadingMoreText: {
@@ -253,7 +172,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   noMoreData: {
-    padding: 20,
+    padding: pagePadding,
     alignItems: 'center',
   },
   noMoreDataText: {

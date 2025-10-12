@@ -1,3 +1,4 @@
+import { pagePadding } from '@/constants/theme';
 import { Link, Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 20,
+    padding: pagePadding,
   },
   link: {
     marginTop: 15,

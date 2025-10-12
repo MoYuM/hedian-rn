@@ -1,5 +1,6 @@
 import { login } from '@/api/auth';
 import { JWT_TOKEN_KEY } from '@/constants/auth';
+import { pagePadding } from '@/constants/theme';
 import { LoginRequest, LoginResponse } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: pagePadding,
     justifyContent: 'center',
   },
   header: {

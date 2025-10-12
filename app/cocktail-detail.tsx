@@ -1,5 +1,6 @@
 import { addCocktail, removeCocktail } from '@/api/user-cocktails';
 import { IconSymbol } from '@/components/ui/IconSymbol';
+import { pagePadding } from '@/constants/theme';
 import { Cocktail } from '@/types/cocktails';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Image } from 'expo-image';
@@ -256,13 +257,14 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: pagePadding,
     paddingVertical: 12,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
+    padding: pagePadding,
   },
   errorText: {
     fontSize: 16,
@@ -313,7 +315,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
   },
   infoCard: {
-    margin: 16,
+    margin: pagePadding,
   },
   titleContainer: {
     flexDirection: 'row',
@@ -386,7 +388,7 @@ const styles = StyleSheet.create({
     color: '#e65100',
   },
   section: {
-    marginHorizontal: 16,
+    marginHorizontal: pagePadding,
     marginBottom: 20,
   },
   sectionHeader: {
