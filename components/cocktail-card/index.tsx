@@ -1,7 +1,8 @@
 import { PlaceholderImage } from '@/components/ui/PlaceholderImage';
 import { Cocktail } from '@/types/cocktails';
+import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IconSymbol } from '../ui/IconSymbol';
 
 interface CocktailCardProps {
@@ -24,7 +25,16 @@ export default function CocktailCard({ cocktail }: CocktailCardProps) {
   return (
     <TouchableOpacity style={styles.cocktailCard} onPress={handlePress}>
       {cocktail.image ? (
-        <Image source={{ uri: cocktail.image }} style={styles.cocktailImage} />
+        <Image
+          source={{ uri: cocktail.image }}
+          style={styles.cocktailImage}
+          contentFit="cover"
+          contentPosition="center"
+          transition={200}
+          cachePolicy="memory-disk"
+          placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+          placeholderContentFit="cover"
+        />
       ) : (
         <PlaceholderImage width="100%" height={160} text="🍹" />
       )}
