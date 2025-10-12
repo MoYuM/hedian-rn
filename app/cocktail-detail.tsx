@@ -2,11 +2,11 @@ import { addCocktail, removeCocktail } from '@/api/user-cocktails';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Cocktail } from '@/types/cocktails';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import {
   Alert,
-  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -118,7 +118,13 @@ export default function CocktailDetailScreen() {
             <Image
               source={{ uri: cocktailData.image }}
               style={styles.cocktailImage}
-              resizeMode="cover"
+              contentFit="cover"
+              contentPosition="center"
+              transition={300}
+              cachePolicy="memory-disk"
+              placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+              placeholderContentFit="cover"
+              priority="high"
             />
           ) : (
             <View style={styles.placeholderImage}>
@@ -267,7 +273,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: 280,
+    maxHeight: 400,
     position: 'relative',
   },
   cocktailImage: {
