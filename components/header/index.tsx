@@ -1,5 +1,6 @@
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { pagePadding } from '@/constants/theme';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -32,12 +33,18 @@ export default function Header({
   activeButton,
   onButtonChange,
 }: HeaderProps) {
+  const navigation = useNavigation();
+
   const handleSearchPress = () => {
     if (onSearchPress) {
       onSearchPress();
     } else {
       router.push('/search' as any);
     }
+  };
+
+  const handleAvatarPress = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
   };
 
   const renderButton = (button: HeaderButton) => (
@@ -59,7 +66,12 @@ export default function Header({
 
   return (
     <View style={styles.container}>
-      <Image style={styles.avatar} source={{ uri: avatarUri }} />
+      <TouchableOpacity
+        onPress={handleAvatarPress}
+        style={styles.avatarContainer}
+      >
+        <Image style={styles.avatar} source={{ uri: avatarUri }} />
+      </TouchableOpacity>
 
       {/* 按钮组 */}
       {buttons.length > 0 && (
@@ -86,11 +98,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: pagePadding,
   },
+  avatarContainer: {
+    marginRight: 12,
+  },
   avatar: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    marginRight: 12,
   },
   buttonsContainer: {
     flex: 1,
