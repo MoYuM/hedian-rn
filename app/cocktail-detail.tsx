@@ -167,6 +167,20 @@ export default function CocktailDetailScreen() {
             <View>
               {cocktailData.ingredients.map((ingredient, index) => (
                 <View key={index} style={styles.ingredientItem}>
+                  <View style={styles.ingredientImageContainer}>
+                    {ingredient.image ? (
+                      <Image
+                        source={{ uri: ingredient.image }}
+                        style={styles.ingredientImage}
+                        contentFit="cover"
+                        transition={200}
+                      />
+                    ) : (
+                      <View style={styles.ingredientImagePlaceholder}>
+                        <IconSymbol name="leaf" size={20} color="#ccc" />
+                      </View>
+                    )}
+                  </View>
                   <View style={styles.ingredientInfo}>
                     <Text style={styles.ingredientName}>{ingredient.name}</Text>
                     {ingredient.usage && (
@@ -407,6 +421,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
+  },
+  ingredientImageContainer: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
+    borderRadius: 6,
+    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
+  },
+  ingredientImage: {
+    width: '100%',
+    height: '100%',
+  },
+  ingredientImagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
   ingredientInfo: {
     flex: 1,

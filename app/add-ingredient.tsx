@@ -4,6 +4,7 @@ import { IconSymbol } from '@/components/ui/IconSymbol';
 import { pagePadding } from '@/constants/theme';
 import { Ingredient } from '@/types/ingredient';
 import { useQuery } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import debounce from 'p-debounce';
 import { useState } from 'react';
@@ -81,6 +82,20 @@ export default function AddIngredientScreen() {
 
     return (
       <View style={styles.ingredientItem}>
+        <View style={styles.ingredientImageContainer}>
+          {item.image ? (
+            <Image
+              source={{ uri: item.image }}
+              style={styles.ingredientImage}
+              contentFit="cover"
+              transition={200}
+            />
+          ) : (
+            <View style={styles.ingredientImagePlaceholder}>
+              <IconSymbol name="leaf" size={24} color="#ccc" />
+            </View>
+          )}
+        </View>
         <View style={styles.ingredientInfo}>
           <View style={styles.ingredientHeader}>
             <Text style={styles.ingredientName} numberOfLines={1}>
@@ -232,6 +247,25 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderRadius: 8,
     height: 80,
+  },
+  ingredientImageContainer: {
+    width: 56,
+    height: 56,
+    marginRight: 12,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
+  },
+  ingredientImage: {
+    width: '100%',
+    height: '100%',
+  },
+  ingredientImagePlaceholder: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
   },
   ingredientInfo: {
     flex: 1,

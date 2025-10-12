@@ -5,12 +5,12 @@ import CocktailCard from '@/components/cocktail-card';
 import { Cocktail } from '@/types/cocktails';
 import MasonryList from '@react-native-seoul/masonry-list';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   Button,
   FlatList,
-  Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
   RefreshControl,
@@ -136,6 +136,14 @@ export default function MineScreen() {
 
   const renderIngredientCard = ({ item: ingredient }: { item: any }) => (
     <TouchableOpacity style={styles.ingredientCard}>
+      <Image
+        source={{ uri: ingredient.image }}
+        style={styles.ingredientImage}
+        contentFit="cover"
+        transition={200}
+        cachePolicy="memory-disk"
+        placeholder={{ blurhash: 'L6PZfSi_.AyE_3t7t7R**0o#DgR4' }}
+      />
       <View style={styles.ingredientInfo}>
         <Text style={styles.ingredientName}>{ingredient.name}</Text>
         <Text style={styles.ingredientEnName}>{ingredient.en_name}</Text>
@@ -459,27 +467,35 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     overflow: 'hidden',
+    flexDirection: 'row',
+    height: 120,
+  },
+  ingredientImage: {
+    width: 120,
+    height: 120,
   },
   ingredientInfo: {
-    padding: 16,
+    flex: 1,
+    padding: 12,
+    justifyContent: 'center',
   },
   ingredientName: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   ingredientEnName: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
     fontStyle: 'italic',
-    marginBottom: 12,
+    marginBottom: 6,
   },
   ingredientDescription: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
-    lineHeight: 20,
-    marginBottom: 12,
+    lineHeight: 16,
+    marginBottom: 6,
   },
   ingredientMeta: {
     flexDirection: 'row',

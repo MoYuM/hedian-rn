@@ -5,4 +5,6 @@ export interface Ingredient {
   name: string;
   /** 用量 */
   usage: string;
+  /** 材料图片 */
+  image?: string;
 }
